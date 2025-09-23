@@ -1,0 +1,18 @@
+
+export DCDB_INSTALL_DIR=/home/admin/shared/DCDB/install
+export DCDB_INC_DIR=$DCDB_INSTALL_DIR/include
+export DCDB_LIB_DIR=$DCDB_INSTALL_DIR/lib
+export DCDB_COMMON_DIR=/home/admin/shared/DCDB/dcdb/common
+
+export QDMI_DCDB_DEV_DIR=/home/admin/shared/QDMI-Devices/build/src/databases/dcdb
+export QDMI_DCDB_DEV_INC_DIR=$QDMI_DCDB_DEV_DIR/include
+export QDMI_DCDB_DEV_LIB_DIR=$QDMI_DCDB_DEV_DIR
+
+export QDMI_SRC_DIR=/home/admin/shared/QDMI-Devices/build/_deps/qdmi-src
+export QDMI_INC_DIR=$QDMI_SRC_DIR/include
+
+export CPATH=$DCDB_INC_DIR:$DCDB_COMMON_DIR/include:$QDMI_DCDB_DEV_INC_DIR:$QDMI_INC_DIR:$CPATH
+export INCLUDE=$DCDB_INC_DIR:$DCDB_COMMON_DIR/include:$QDMI_DCDB_DEV_INC_DIR:$QDMI_INC_DIR:$INCLUDE
+export LD_LIBRARY_PATH=$DCDB_LIB_DIR:$QDMI_DCDB_DEV_LIB_DIR:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$DCDB_LIB_DIR:$QDMI_DCDB_DEV_LIB_DIR:$LIBRARY_PATH
+export DCDB_SOURCE_LOCATION=$DCDB_INSTALL_DIR
