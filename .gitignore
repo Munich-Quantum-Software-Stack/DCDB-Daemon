@@ -1,0 +1,23 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Datasets
+datasets/
+*.h5
+
+# VScode settings
+.vscode
+
+# Secrets
+.env
+
+# MAC stuff
+.DS_Store
