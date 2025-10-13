@@ -16,3 +16,14 @@ export INCLUDE=$DCDB_INC_DIR:$DCDB_COMMON_DIR/include:$QDMI_DCDB_DEV_INC_DIR:$QD
 export LD_LIBRARY_PATH=$DCDB_LIB_DIR:$QDMI_DCDB_DEV_LIB_DIR:$LD_LIBRARY_PATH
 export LIBRARY_PATH=$DCDB_LIB_DIR:$QDMI_DCDB_DEV_LIB_DIR:$LIBRARY_PATH
 export DCDB_SOURCE_LOCATION=$DCDB_INSTALL_DIR
+
+echo "---------------------------------------------------"
+echo "Exported DCDB, QDMI, QDMI_DCDB Device env vars.    "
+echo "DCDB_INC_DIR=$DCDB_INC_DIR                         "
+echo "DCDB_LIB_DIR=$DCDB_LIB_DIR                         "
+echo "                                                   "
+echo "QDMI_DCDB_DEV_INC_DIR=$DCDB_INC_DIR                " 
+echo "QDMI_DCDB_DEV_LIB_DIR=$QDMI_DCDB_DEV_LIB_DIR       "
+echo "                                                   "
+echo "QDMI_INC_DIR=$QDMI_INC_DIR                         " 
+echo "---------------------------------------------------"

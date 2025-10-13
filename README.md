@@ -33,11 +33,11 @@ Architecture overview
 
 * Build tools: CMake >= 3.19, C++17 compiler (g++ or clang++)
 
-* Libraries (installed or built from source):
+Libraries (installed or built from source):
   - DCDB core libraries (`libdcdb.so` or `libdcdbclient.so`, headers).
   - QDMI‑Devices DCDB Device Lib (`libdcdb_device.so`).
 
-* Runtime: access to a DCDB deployment and an InfluxDB instance might depend on the HPC-center-specific configuration.
+Runtime: access to a DCDB deployment and an InfluxDB instance. Set these environment variables (or pass -D cache variables to CMake) so CMake can locate, e.g.,
 
 ```Bash
 export DCDB_LIB_DIR=/path/to/DCDB/install/lib

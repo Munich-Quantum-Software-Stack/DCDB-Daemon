@@ -1,112 +1,96 @@
 #include "daemon.hpp"
+#include "arguments.hpp"
 #include <iostream>
 #include <cstdlib>
 
 int main(int argc, char **argv)
 {
+    // Parse the input arguments
+    Arguments args = parse_args(argc, argv);
+    const int sensor_dev_id = std::stoi(args.sensor_id);       // The sensor device id to query
+    std::string start_timestamp = args.start_time.value();  // The start timestamp to query
+    std::string end_timestamp   = args.end_time.value();    // The end timestamp to query
 
     Config cfg;
     cfg.daemon_id = 101;
     cfg.daemon_name = "mqss-dcdb-daemon";
     cfg.dcdb_host_server = "host.docker.internal:9042";
 
-    try
-    {
+    try {
         Daemon dm(cfg);
-        std::cout << "----------------------------------------" << std::endl;
-        std::cout << "MQSS QDMI-based DCDB Daemon.            " << std::endl;
-        std::cout << "----------------------------------------" << std::endl;
+        std::cout << "------------------------------------------" << std::endl;
+        std::cout << "MQSS QDMI-based DCDB Daemon.              " << std::endl;
+        std::cout << "------------------------------------------" << std::endl;
 
-        // Create a QDMI session for QDMI-based DCDB Device access
+        size_t size = 0;
         static DCDB_QDMI_Device_Session session;
+        DCDB_QDMI_Device_TelemetrySensor_Query query;
 
-        // Allocate and intialize the session
+        // Allocate and intialize the QDMI session
         DCDB_QDMI_device_initialize();
         DCDB_QDMI_device_session_alloc(&session);
-        if (session == nullptr)
-        {
+        if (session == nullptr) {
             std::cerr << "Fatal: Error when allocating QDMI Device session for DCDB" << std::endl;
             return 1;
         }
         DCDB_QDMI_device_session_set_parameter(session, QDMI_DEVICE_SESSION_PARAMETER_BASEURL,
-                                               cfg.dcdb_host_server.size(),
-                                               cfg.dcdb_host_server.c_str());
+                                                cfg.dcdb_host_server.size(),
+                                                cfg.dcdb_host_server.c_str());
         DCDB_QDMI_device_session_init(session);
-
-        std::cout << "QDMI-based DCDB Device is initialized successfully." << std::endl;
-        std::cout << "MQSS QDMI-based DCDB Daemon initialized successfully." << std::endl;
-        std::cout << "MQSS DCDB Daemon ID: " << cfg.daemon_id << std::endl;
-        std::cout << "MQSS DCDB Daemon Name: " << cfg.daemon_name << std::endl;
-        std::cout << "DCDB Host Server: " << cfg.dcdb_host_server << std::endl;
-
-        // Try to get something
-        std::cout << "------------------------------------------" << std::endl;
-        size_t size = 0;
-        DCDB_QDMI_device_session_query_device_property(session, QDMI_DEVICE_PROPERTY_TELEMETRYSENSORS, 0, nullptr, &size);
-
-        std::vector<DCDB_QDMI_TelemetrySensor> envs(size / sizeof(DCDB_QDMI_TelemetrySensor));
-        DCDB_QDMI_device_session_query_device_property(session, QDMI_DEVICE_PROPERTY_TELEMETRYSENSORS, size, static_cast<void *>(envs.data()), nullptr);
-
-        DCDB_QDMI_TelemetrySensor env = envs.at(0);
-        DCDB_QDMI_Device_TelemetrySensor_Query query;
+        DCDB_QDMI_device_session_query_device_property(session, QDMI_DEVICE_PROPERTY_TELEMETRYSENSORS, 
+                                                        0, nullptr, &size);
+        std::vector<DCDB_QDMI_TelemetrySensor> envs(size/sizeof(DCDB_QDMI_TelemetrySensor));
+        DCDB_QDMI_device_session_query_device_property(session, QDMI_DEVICE_PROPERTY_TELEMETRYSENSORS, 
+                                                        size, static_cast<void *>(envs.data()), nullptr);
         DCDB_QDMI_device_session_create_device_telemetrysensor_query(session, &query);
 
+        std::cout << "------------------------------------------" << std::endl;
+        std::cout << "QDMI-based DCDB Device is initialized successfully." << std::endl;
+        std::cout << "MQSS QDMI-based DCDB Daemon initialized successfully." << std::endl;
+        std::cout << "MQSS DCDB Daemon ID: "   << cfg.daemon_id << std::endl;
+        std::cout << "MQSS DCDB Daemon Name: " << cfg.daemon_name << std::endl;
+        std::cout << "DCDB Host Server: " << cfg.dcdb_host_server << std::endl;
+        std::cout << "------------------------------------------" << std::endl;
+       
+        DCDB_QDMI_TelemetrySensor sensor_dev = envs.at(sensor_dev_id); // The temperature in the Coldlab
+
+        // Check the sensor id name
+        std::string sensor_name = check_sensor_device_id(session, sensor_dev);
+        std::cout << "QDMI-based DCDB Query: " << sensor_name << std::endl;
+
         // Timestamp to get the sensor data
-        uint64_t sta_ts = 1745644603;
-        uint64_t end_ts = 1745817403;
-        size_t timestamp_size;
-        size_t result_size;
+        //  + Query from now
+        //  + And from 10 minutes ago
 
-        QDMI_TelemetrySensor_Query_Status status;
+        // int minutes_ago = 10;
+        // auto time_now = std::chrono::system_clock::now();
+        // auto time_pre = time_now - std::chrono::minutes(minutes_ago);
+        // std::time_t time_now_value = std::chrono::system_clock::to_time_t(time_now);
+        // std::time_t time_pre_value = std::chrono::system_clock::to_time_t(time_pre);
+        // std::string ctime_format_now = std::ctime(&time_now_value);
+        // std::string ctime_format_pre = std::ctime(&time_pre_value);
+        // std::cout << "------------------------------------------" << std::endl;
+        // std::cout << " + Time Now: "  << ctime_format_now;
+        // std::cout << " + Time Prev -" << minutes_ago << " Minutes Ago: " << ctime_format_pre;
+        // std::cout << "------------------------------------------" << std::endl;
 
-        // set the start timestamp
-        DCDB_QDMI_device_telemetrysensor_query_set_parameter(query, QDMI_DEVICE_TELEMETRYSENSOR_QUERY_PARAMETER_STARTTIME,
-                                                             sizeof(uint64_t), &sta_ts);
-
-        // set the end timestamp
-        DCDB_QDMI_device_telemetrysensor_query_set_parameter(query, QDMI_DEVICE_TELEMETRYSENSOR_QUERY_PARAMETER_ENDTIME,
-                                                             sizeof(uint64_t), &end_ts);
-
-        // set the query parameters
-        DCDB_QDMI_device_telemetrysensor_query_set_parameter(query, QDMI_DEVICE_TELEMETRYSENSOR_QUERY_PARAMETER_TELEMETRYSENSOR,
-                                                             sizeof(DCDB_QDMI_TelemetrySensor), &env);
-
-        // check the sensor id name
-        size_t id_size;
-        DCDB_QDMI_device_session_query_telemetrysensor_property(session, env, QDMI_TELEMETRYSENSOR_PROPERTY_ID, 0, nullptr, &id_size);
-        std::string id(id_size - 1, '\0');
-        DCDB_QDMI_device_session_query_telemetrysensor_property(session, env, QDMI_TELEMETRYSENSOR_PROPERTY_ID, id_size, static_cast<void *>(id.data()), nullptr);
-
-        // submit the query
-        DCDB_QDMI_device_telemetrysensor_query_submit(query);
-
-        // wait for the query
-        DCDB_QDMI_device_telemetrysensor_query_wait(query, 0);
-
-        // check the query status
-        DCDB_QDMI_device_telemetrysensor_query_check_status(query, &status);
-
-        // get the query result size
-        DCDB_QDMI_device_telemetrysensor_query_get_results(query, QDMI_TELEMETRYSENSOR_QUERY_RESULT_TIMESTAMPS,
-                                                           0, nullptr, &timestamp_size);
-
-        // get the timestamp details
-        std::vector<uint64_t> timestamps(timestamp_size / sizeof(uint64_t));
-        DCDB_QDMI_device_telemetrysensor_query_get_results(query, QDMI_TELEMETRYSENSOR_QUERY_RESULT_TIMESTAMPS,
-                                                           timestamp_size, static_cast<void *>(timestamps.data()), nullptr);
-
-        // get the query result size
-        DCDB_QDMI_device_telemetrysensor_query_get_results(query, QDMI_TELEMETRYSENSOR_QUERY_RESULT_VALUES,
-                                                           0, nullptr, &result_size);
-
-        std::vector<int64_t> values(result_size / sizeof(int64_t));
-        DCDB_QDMI_device_telemetrysensor_query_get_results(query, QDMI_TELEMETRYSENSOR_QUERY_RESULT_VALUES,
-                                                           result_size, static_cast<void *>(values.data()), nullptr);
-
+        // Convert to unix epoch seconds format, for example,
+        //  + 1745644603 --> 2025-04-26 07:16:43
+        //  + 1745817403 --> 2025-04-28 07:16:43
+        // Note: recent times seem not working, only 2025-04, 05, 06, 07 works???
+        // std::string start_timestamp = "2025-06-26 07:16:10";
+        // std::string end_timestamp   = "2025-06-26 07:26:10";
+        uint64_t sta_ts = timestamp2unix_epoch_seconds(start_timestamp);
+        uint64_t end_ts = timestamp2unix_epoch_seconds(end_timestamp);
+        std::cout << " + Start Timestamp: " << start_timestamp << " --> " << sta_ts << std::endl;
+        std::cout << " + End Timestamp:   " << end_timestamp   << " --> " << end_ts << std::endl;
         std::cout << "------------------------------------------" << std::endl;
-        std::cout << "QDMI-based DCDB Query: " << id << std::endl;
+
+        // Query the sensor data
+        std::vector<int64_t> sensor0_data = mqss_dcdb_query_sensor_data(session, query, sensor_dev, sta_ts, end_ts);
         std::cout << "------------------------------------------" << std::endl;
-        for (auto value : values){
+        std::cout << "Sensor Data Values (" << sensor0_data.size() << " samples): ";
+        for (auto value : sensor0_data){
             std::cout << value << " ";
         }
         std::cout << std::endl;
@@ -119,8 +103,7 @@ int main(int argc, char **argv)
 
         return 0;
     }
-    catch (const std::exception &ex)
-    {
+    catch (const std::exception &ex){
         std::cerr << "Fatal: " << ex.what() << std::endl;
         return 1;
     }

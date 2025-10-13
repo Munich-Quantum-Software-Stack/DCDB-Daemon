@@ -117,31 +117,9 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /usr/include/c++/12/bits/stl_uninitialized.h \
  /usr/include/c++/12/bits/stl_vector.h \
  /usr/include/c++/12/bits/stl_bvector.h \
- /usr/include/c++/12/bits/vector.tcc \
- /home/admin/shared/QDMI-Devices/build/src/databases/dcdb/include/dcdb_qdmi/device.h \
- /home/admin/shared/QDMI-Devices/build/_deps/qdmi-src/include/qdmi/constants.h \
- /home/admin/shared/QDMI-Devices/build/src/databases/dcdb/include/dcdb_qdmi/types.h \
- /usr/include/c++/12/cstddef \
- /home/admin/shared/QDMI-Devices/build/src/databases/dcdb/include/sensors.h \
- /usr/include/c++/12/array /usr/include/c++/12/compare \
- /usr/include/c++/12/chrono /usr/include/c++/12/bits/chrono.h \
- /usr/include/c++/12/ratio /usr/include/c++/12/limits \
- /usr/include/c++/12/ctime /usr/include/time.h \
- /usr/include/x86_64-linux-gnu/bits/time.h \
- /usr/include/x86_64-linux-gnu/bits/timex.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
- /usr/include/c++/12/bits/parse_numbers.h \
- /home/admin/shared/DCDB/install/include/dcdb/sensor.h \
- /home/admin/shared/DCDB/install/include/dcdb/sensorconfig.h \
- /usr/include/fcntl.h /usr/include/x86_64-linux-gnu/bits/fcntl.h \
- /usr/include/x86_64-linux-gnu/bits/fcntl-linux.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
- /usr/include/linux/falloc.h /usr/include/x86_64-linux-gnu/bits/stat.h \
- /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
- /usr/include/c++/12/fstream /usr/include/c++/12/istream \
- /usr/include/c++/12/ios /usr/include/c++/12/exception \
- /usr/include/c++/12/bits/exception_ptr.h \
+ /usr/include/c++/12/bits/vector.tcc /usr/include/c++/12/sstream \
+ /usr/include/c++/12/istream /usr/include/c++/12/ios \
+ /usr/include/c++/12/exception /usr/include/c++/12/bits/exception_ptr.h \
  /usr/include/c++/12/bits/cxxabi_init_exception.h \
  /usr/include/c++/12/typeinfo /usr/include/c++/12/bits/nested_exception.h \
  /usr/include/c++/12/bits/ios_base.h /usr/include/c++/12/ext/atomicity.h \
@@ -150,7 +128,11 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /usr/include/pthread.h /usr/include/sched.h \
  /usr/include/x86_64-linux-gnu/bits/sched.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h \
- /usr/include/x86_64-linux-gnu/bits/cpu-set.h \
+ /usr/include/x86_64-linux-gnu/bits/cpu-set.h /usr/include/time.h \
+ /usr/include/x86_64-linux-gnu/bits/time.h \
+ /usr/include/x86_64-linux-gnu/bits/timex.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
  /usr/include/x86_64-linux-gnu/bits/setjmp.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h \
  /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h \
@@ -171,7 +153,32 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /usr/include/c++/12/bits/locale_facets.tcc \
  /usr/include/c++/12/bits/basic_ios.tcc /usr/include/c++/12/ostream \
  /usr/include/c++/12/bits/ostream.tcc \
- /usr/include/c++/12/bits/istream.tcc /usr/include/c++/12/bits/codecvt.h \
+ /usr/include/c++/12/bits/istream.tcc \
+ /usr/include/c++/12/bits/sstream.tcc /usr/include/c++/12/iomanip \
+ /usr/include/c++/12/locale \
+ /usr/include/c++/12/bits/locale_facets_nonio.h /usr/include/c++/12/ctime \
+ /usr/include/x86_64-linux-gnu/c++/12/bits/time_members.h \
+ /usr/include/x86_64-linux-gnu/c++/12/bits/messages_members.h \
+ /usr/include/libintl.h /usr/include/c++/12/bits/codecvt.h \
+ /usr/include/c++/12/bits/locale_facets_nonio.tcc \
+ /usr/include/c++/12/bits/locale_conv.h \
+ /usr/include/c++/12/bits/quoted_string.h /usr/include/c++/12/chrono \
+ /usr/include/c++/12/bits/chrono.h /usr/include/c++/12/ratio \
+ /usr/include/c++/12/limits /usr/include/c++/12/bits/parse_numbers.h \
+ /home/admin/shared/QDMI-Devices/build/src/databases/dcdb/include/dcdb_qdmi/device.h \
+ /home/admin/shared/QDMI-Devices/build/_deps/qdmi-src/include/qdmi/constants.h \
+ /home/admin/shared/QDMI-Devices/build/src/databases/dcdb/include/dcdb_qdmi/types.h \
+ /usr/include/c++/12/cstddef \
+ /home/admin/shared/QDMI-Devices/build/src/databases/dcdb/include/sensors.h \
+ /usr/include/c++/12/array /usr/include/c++/12/compare \
+ /home/admin/shared/DCDB/install/include/dcdb/sensor.h \
+ /home/admin/shared/DCDB/install/include/dcdb/sensorconfig.h \
+ /usr/include/fcntl.h /usr/include/x86_64-linux-gnu/bits/fcntl.h \
+ /usr/include/x86_64-linux-gnu/bits/fcntl-linux.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
+ /usr/include/linux/falloc.h /usr/include/x86_64-linux-gnu/bits/stat.h \
+ /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
+ /usr/include/c++/12/fstream \
  /usr/include/x86_64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++io.h \
  /usr/include/c++/12/bits/fstream.tcc /usr/include/c++/12/list \
@@ -1217,12 +1224,6 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /home/admin/shared/DCDB/install/include/boost/core/uncaught_exceptions.hpp \
  /home/admin/shared/DCDB/install/include/boost/log/detail/cleanup_scope_guard.hpp \
  /home/admin/shared/DCDB/install/include/boost/log/utility/formatting_ostream.hpp \
- /usr/include/c++/12/locale \
- /usr/include/c++/12/bits/locale_facets_nonio.h \
- /usr/include/x86_64-linux-gnu/c++/12/bits/time_members.h \
- /usr/include/x86_64-linux-gnu/c++/12/bits/messages_members.h \
- /usr/include/libintl.h /usr/include/c++/12/bits/locale_facets_nonio.tcc \
- /usr/include/c++/12/bits/locale_conv.h \
  /home/admin/shared/DCDB/install/include/boost/utility/string_ref_fwd.hpp \
  /home/admin/shared/DCDB/install/include/boost/utility/string_view_fwd.hpp \
  /home/admin/shared/DCDB/install/include/boost/log/detail/attachable_sstream_buf.hpp \
@@ -1490,14 +1491,12 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /home/admin/shared/DCDB/install/include/boost/date_time/adjust_functors.hpp \
  /home/admin/shared/DCDB/install/include/boost/date_time/wrapping_int.hpp \
  /home/admin/shared/DCDB/install/include/boost/date_time/date_generators.hpp \
- /usr/include/c++/12/sstream /usr/include/c++/12/bits/sstream.tcc \
  /home/admin/shared/DCDB/install/include/boost/date_time/date_clock_device.hpp \
  /home/admin/shared/DCDB/install/include/boost/date_time/c_time.hpp \
  /usr/include/x86_64-linux-gnu/sys/time.h \
  /home/admin/shared/DCDB/install/include/boost/date_time/date_iterator.hpp \
  /home/admin/shared/DCDB/install/include/boost/date_time/local_time/local_time_types.hpp \
  /home/admin/shared/DCDB/install/include/boost/date_time/local_time/local_date_time.hpp \
- /usr/include/c++/12/iomanip /usr/include/c++/12/bits/quoted_string.h \
  /home/admin/shared/DCDB/install/include/boost/shared_ptr.hpp \
  /home/admin/shared/DCDB/install/include/boost/date_time/posix_time/posix_time.hpp \
  /home/admin/shared/DCDB/install/include/boost/date_time/posix_time/ptime.hpp \
