@@ -4,6 +4,6 @@ project(influxdb-example)
 
 find_package(InfluxDB)
 
-add_executable(influxdb-exp influxdb-write.cpp)
-target_link_libraries(influxdb-exp PRIVATE InfluxData::InfluxDB)
+add_executable(influxdb-example influxdb-write.cpp)
+target_link_libraries(influxdb-example PRIVATE InfluxData::InfluxDB)
 

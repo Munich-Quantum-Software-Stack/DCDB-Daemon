@@ -13,16 +13,13 @@
 // InfluxDB configuration (mirrored from Python)
 // ---------------------------------------------------------------
 static const std::string INFLUX_URL =
-    "http://telemetry_influx_account:credential"
-    "@portal-telemetry.de:80xy?db=influxdb-demo";
+    "http://account:credentials"
+    "@portal-telemetry.de:8086?db=database_name";
 
 // ---------------------------------------------------------------
 // Data sources: { path, divisor, measurement, field_name }
 // ---------------------------------------------------------------
 static const std::vector<DataSource> DATA_SOURCES = {
-    { "/qic/warmlab/magnetometer/X", 1000.0, "magnetometer",  "X"           },
-    { "/qic/warmlab/magnetometer/Y", 1000.0, "magnetometer",  "Y"           },
-    { "/qic/warmlab/magnetometer/Z", 1000.0, "magnetometer",  "Z"           },
     { "/qic/warmlab/humidity",       1000.0, "environmental", "humidity"    },
     { "/qic/warmlab/temperature",    1000.0, "environmental", "temperature" },
     { "/qic/warmlab/pressure",        100.0, "environmental", "pressure"    },
@@ -39,20 +36,20 @@ std::vector<DataEntry> fake_data(const std::string& path)
 {
     // Base timestamps and values modelled after the temperature example
     // Each source gets slightly varied values so they look distinct
-    static const std::vector<long long> base_times = {
-        1774345458009366016LL,
-        1774345518141483008LL,
-        1774345578269336832LL,
-        1774345638402076928LL,
-        1774345698639645952LL,
-    };
+    auto now = std::chrono::system_clock::now();
+    auto start = now - std::chrono::hours(2);
+
+    std::vector<long long> base_times;
+    for (int i = 0; i < 5; ++i) {
+        auto tp = start + std::chrono::minutes(i);
+        auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                      tp.time_since_epoch()).count();
+        base_times.push_back(ns);
+    }
 
     // Pick a base raw value per sensor path
     double base_raw = 19713.0;
-    if      (path.find("/X")          != std::string::npos) base_raw = 512.0;
-    else if (path.find("/Y")          != std::string::npos) base_raw = 498.0;
-    else if (path.find("/Z")          != std::string::npos) base_raw = 503.0;
-    else if (path.find("humidity")    != std::string::npos) base_raw = 45200.0;
+    if (path.find("humidity")         != std::string::npos) base_raw = 45200.0;
     else if (path.find("temperature") != std::string::npos) base_raw = 19713.0;
     else if (path.find("pressure")    != std::string::npos) base_raw = 101325.0;
     else if (path.find("light")       != std::string::npos) base_raw = 320.0;
@@ -104,7 +101,7 @@ static long long parse_timestamp_ns(const std::string& timestamp)
 }
 
 // ---------------------------------------------------------------
-// parse_data  (unchanged)
+// parse_data 
 // ---------------------------------------------------------------
 std::vector<DataEntry> parse_data(const std::vector<std::string>& lines)
 {
@@ -143,19 +140,27 @@ void send_to_influxdb(
     const std::string&            field_name)
 {
     if (data.empty()) return;
+
     for (const auto& entry : data) {
-        auto tp = std::chrono::time_point<std::chrono::system_clock>(
-            std::chrono::nanoseconds(entry.time_ns));
+        // Convert back to time_t to verify
+        auto tp = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(std::chrono::nanoseconds(entry.time_ns));
+        time_t t = std::chrono::system_clock::to_time_t(tp);
+
+        std::cout << "Writing to InfluxDB: "
+                  << "Measurement: " << measurement
+                  << ", Field: " << field_name
+                  << ", Value: " << (entry.value / divisor)
+                  << ", Timestamp: " << entry.time_ns << " ns"
+                  << "--> " << std::ctime(&t) << "\n";
+
         db.write(
             influxdb::Point{measurement}
                 .addTag  ("source", data_source)
                 .addTag  ("field",  field_name)
                 .addField(field_name, entry.value / divisor)
                 .setTimestamp(tp));
+        std::cout << "Write successful.\n";
     }
-    db.flushBatch();
-    std::cout << "Successfully wrote " << data.size()
-              << " points to InfluxDB for " << data_source << '\n';
 }
 
 // ---------------------------------------------------------------
@@ -163,18 +168,13 @@ void send_to_influxdb(
 // ---------------------------------------------------------------
 int main()
 {
-    std::shared_ptr<influxdb::InfluxDB> db;
-    try {
-        db = influxdb::InfluxDBFactory::Get(INFLUX_URL);
-        if (!db) {
-            std::cerr << "Failed to connect to InfluxDB at: " << INFLUX_URL << '\n';
-            return 1;
-        }
-        std::cout << "Connected to InfluxDB: " << INFLUX_URL << '\n';
-    } catch (const std::exception& e) {
-        std::cerr << "InfluxDB connection error: " << e.what() << '\n';
+    // Connect to InfluxDB
+    auto db = influxdb::InfluxDBFactory::Get(INFLUX_URL);
+    if (!db) {
+        std::cerr << "Failed to connect to InfluxDB\n";
         return 1;
     }
+    std::cout << "Connected to InfluxDB: " << INFLUX_URL << '\n';
 
     for (const auto& src : DATA_SOURCES) {
         std::cout << "\nData source: " << src.path
@@ -184,13 +184,11 @@ int main()
 
         // Replace fake_data() with a real dcdbquery call if available
         auto data = fake_data(src.path);
-
         if (data.empty()) {
             std::cerr << "No data for " << src.path << ", skipping.\n";
             continue;
         }
 
-        std::cout << "Data points: " << data.size() << '\n';
         try {
             send_to_influxdb(*db, data, src.path,
                              src.divisor, src.measurement, src.field_name);
