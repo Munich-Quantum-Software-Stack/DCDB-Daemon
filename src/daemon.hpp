@@ -34,6 +34,11 @@ private:
     const Config cfg;
 };
 
+struct DCDBSensorQueryResult {
+    // UNIX epoch nanoseconds from DCDB
+    std::vector<uint64_t> timestamps;
+    std::vector<int64_t>  values;
+};
 
 /**
  * @brief Query telemetry sensor data from a QDMI-based DCDB device.
@@ -62,7 +67,7 @@ private:
  * @see DCDB_QDMI_device_telemetrysensor_query_submit()
  * @see DCDB_QDMI_device_telemetrysensor_query_get_results()
  */
-std::vector<int64_t> mqss_dcdb_query_sensor_data(DCDB_QDMI_Device_Session session, 
+DCDBSensorQueryResult mqss_dcdb_query_sensor_data(DCDB_QDMI_Device_Session session, 
     DCDB_QDMI_Device_TelemetrySensor_Query query, 
     DCDB_QDMI_TelemetrySensor sensor_device, 
     uint64_t start_timestamp, 

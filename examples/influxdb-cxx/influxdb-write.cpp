@@ -152,14 +152,15 @@ void send_to_influxdb(
                   << ", Value: " << (entry.value / divisor)
                   << ", Timestamp: " << entry.time_ns << " ns"
                   << "--> " << std::ctime(&t) << "\n";
+        std::cout << "Check tp: " << tp.time_since_epoch().count() << "\n";
 
-        db.write(
-            influxdb::Point{measurement}
-                .addTag  ("source", data_source)
-                .addTag  ("field",  field_name)
-                .addField(field_name, entry.value / divisor)
-                .setTimestamp(tp));
-        std::cout << "Write successful.\n";
+        // db.write(
+        //     influxdb::Point{measurement}
+        //         .addTag  ("source", data_source)
+        //         .addTag  ("field",  field_name)
+        //         .addField(field_name, entry.value / divisor)
+        //         .setTimestamp(tp));
+        // std::cout << "Write successful.\n";
     }
 }
 
@@ -188,6 +189,9 @@ int main()
             std::cerr << "No data for " << src.path << ", skipping.\n";
             continue;
         }
+        // std::cout << "Parsed " << data.size() << " data entries for " << src.path << ".\n";
+        // std::cout << "First entry: timestamp=" << data.front().time_ns
+        //           << " ns, value=" << data.front().value << "\n";
 
         try {
             send_to_influxdb(*db, data, src.path,

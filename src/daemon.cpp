@@ -64,7 +64,7 @@ void Daemon::finalize() {
  * @see DCDB_QDMI_device_telemetrysensor_query_submit()
  * @see DCDB_QDMI_device_telemetrysensor_query_get_results()
  */
-std::vector<int64_t> mqss_dcdb_query_sensor_data(DCDB_QDMI_Device_Session session, 
+DCDBSensorQueryResult mqss_dcdb_query_sensor_data(DCDB_QDMI_Device_Session session, 
     DCDB_QDMI_Device_TelemetrySensor_Query query, 
     DCDB_QDMI_TelemetrySensor sensor_device, 
     uint64_t start_timestamp, 
@@ -113,7 +113,7 @@ std::vector<int64_t> mqss_dcdb_query_sensor_data(DCDB_QDMI_Device_Session sessio
     DCDB_QDMI_device_telemetrysensor_query_get_results(query, QDMI_TELEMETRYSENSOR_QUERY_RESULT_VALUES,
                                                     result_size, static_cast<void *>(values.data()), nullptr);
 
-    return values;
+    return DCDBSensorQueryResult{timestamps, values};
 }
 
 /**
