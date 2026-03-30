@@ -12,7 +12,7 @@
 // ---------------------------------------------------------------
 static const std::string INFLUX_URL =
     "http://account:credentials"
-    "@portal-telemetry.de:port?db=database_name";
+    "@portal-telemetry.de:8086?db=database_name";
 
 // ---------------------------------------------------------------
 // DataEntry: holds a single parsed measurement sample
@@ -32,10 +32,22 @@ struct DataSource {
     std::string field_name;
 };
 
+static const std::vector<DataSource> DATA_SOURCES = {
 
-// movement: no warmlab sensor available in the list
-// 50, 51, 30 works, the others do not work
+    // --- BlueFors cryostat temperatures (uK) ---
+    {  0,    1.0, "bluefors", "qexa_tmixing"  },  // /qct/q-exa/bluefors/tmixing    | WORKED
+    {  2,    1.0, "bluefors", "qexa_t4k"      },  // /qct/q-exa/bluefors/t4k        | WORKED
+    {  4,    1.0, "bluefors", "qexa_t50k"     },  // /qct/q-exa/bluefors/t50k       | WORKED
+    {  6,    1.0, "bluefors", "qexa_tstill"   },  // /qct/q-exa/bluefors/tstill     | WORKED
 
+    // --- Coldlab individual temperature sensors (K, 60s) ---
+    { 56, 1000.0, "coldlab_temp", "t_28154A740E0000A8" },   // WORKED
+};
+
+
+/* Several sensors cause memory corruption when queried, 
+* likely due to a bug in the DCDB-QDMI library.
+* The full list of sensors is defined in the commented-out DATA_SOURCES vector below.
 static const std::vector<DataSource> DATA_SOURCES = {
 
     // --- BlueFors cryostat temperatures (uK) ---
@@ -148,6 +160,7 @@ static const std::vector<DataSource> DATA_SOURCES = {
     { 88, 1000.0, "coldlab_temp", "t_28EDE3730E00003D" },   // corrupted size vs. prev_size
     { 89, 1000.0, "coldlab_temp", "t_28F192730E0000BB" },   // corrupted size vs. prev_size
 };
+*/
 
 // Do NOT need to include daemon.hpp here
 // The forward declaration is enough for the function signature
