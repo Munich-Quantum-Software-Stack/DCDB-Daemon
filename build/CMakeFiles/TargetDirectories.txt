@@ -1,3 +1,0 @@
-/home/admin/shared/DCDB-Daemon/build/CMakeFiles/mqss_dcdb_daemon.dir
-/home/admin/shared/DCDB-Daemon/build/CMakeFiles/edit_cache.dir
-/home/admin/shared/DCDB-Daemon/build/CMakeFiles/rebuild_cache.dir
