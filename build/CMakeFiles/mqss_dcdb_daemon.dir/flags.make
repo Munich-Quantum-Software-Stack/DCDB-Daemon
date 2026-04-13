@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/admin/shared/DCDB/install/include -I/home/admin/shared/DCDB/dcdb/common/include -I/home/admin/shared/QDMI-Devices/build/_deps/qdmi-src/include -I/home/admin/shared/QDMI-Devices/build/src/databases/dcdb/include
+CXX_INCLUDES = -I/home/admin/shared/DCDB/install/include -I/home/admin/shared/DCDB/dcdb/common/include -I/home/admin/shared/QDMI-Devices/build/_deps/qdmi-src/include -I/home/admin/shared/QDMI-Devices/build/src/databases/dcdb/include -I/home/admin/shared/DCDB-Daemon/build/_deps/nlohmann_json-src/include
 
-CXX_FLAGS = -g -DDEBUG -std=c++17
+CXX_FLAGS = -g -DDEBUG -std=c++20
 

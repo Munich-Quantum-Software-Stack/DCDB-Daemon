@@ -55,6 +55,7 @@ def parse_data(lines):
                 unix_time_ns = int(dt.timestamp() * 1_000_000_000)
                 
                 data.append({'time': unix_time_ns, 'value': float(value)})
+                
             except ValueError as ve:
                 print(f"Error parsing line '{line}': {ve}")
                 try:

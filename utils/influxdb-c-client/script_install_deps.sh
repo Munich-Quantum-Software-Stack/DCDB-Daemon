@@ -1,0 +1,1 @@
+sudo apt install g++ cmake libcurl4-openssl-dev libboost1.81-all-dev

@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/admin/shared/MQSS-DCDB-Daemon
+CMAKE_SOURCE_DIR = /home/admin/shared/DCDB-Daemon
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/admin/shared/MQSS-DCDB-Daemon/build
+CMAKE_BINARY_DIR = /home/admin/shared/DCDB-Daemon/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/mqss_dcdb_daemon.dir/depend.make
@@ -70,32 +70,32 @@ include CMakeFiles/mqss_dcdb_daemon.dir/progress.make
 include CMakeFiles/mqss_dcdb_daemon.dir/flags.make
 
 CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: CMakeFiles/mqss_dcdb_daemon.dir/flags.make
-CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: /home/admin/shared/MQSS-DCDB-Daemon/src/daemon.cpp
+CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: /home/admin/shared/DCDB-Daemon/src/daemon.cpp
 CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: CMakeFiles/mqss_dcdb_daemon.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/admin/shared/MQSS-DCDB-Daemon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o -MF CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o.d -o CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o -c /home/admin/shared/MQSS-DCDB-Daemon/src/daemon.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/admin/shared/DCDB-Daemon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o -MF CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o.d -o CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o -c /home/admin/shared/DCDB-Daemon/src/daemon.cpp
 
 CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/admin/shared/MQSS-DCDB-Daemon/src/daemon.cpp > CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/admin/shared/DCDB-Daemon/src/daemon.cpp > CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.i
 
 CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/admin/shared/MQSS-DCDB-Daemon/src/daemon.cpp -o CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/admin/shared/DCDB-Daemon/src/daemon.cpp -o CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.s
 
 CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o: CMakeFiles/mqss_dcdb_daemon.dir/flags.make
-CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o: /home/admin/shared/MQSS-DCDB-Daemon/src/main.cpp
+CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o: /home/admin/shared/DCDB-Daemon/src/main.cpp
 CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o: CMakeFiles/mqss_dcdb_daemon.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/admin/shared/MQSS-DCDB-Daemon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o -MF CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o.d -o CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o -c /home/admin/shared/MQSS-DCDB-Daemon/src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/admin/shared/DCDB-Daemon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o -MF CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o.d -o CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o -c /home/admin/shared/DCDB-Daemon/src/main.cpp
 
 CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/admin/shared/MQSS-DCDB-Daemon/src/main.cpp > CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/admin/shared/DCDB-Daemon/src/main.cpp > CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.i
 
 CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/admin/shared/MQSS-DCDB-Daemon/src/main.cpp -o CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/admin/shared/DCDB-Daemon/src/main.cpp -o CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.s
 
 # Object files for target mqss_dcdb_daemon
 mqss_dcdb_daemon_OBJECTS = \
@@ -110,8 +110,13 @@ mqss_dcdb_daemon: CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o
 mqss_dcdb_daemon: CMakeFiles/mqss_dcdb_daemon.dir/build.make
 mqss_dcdb_daemon: /home/admin/shared/DCDB/install/lib/libdcdb.so
 mqss_dcdb_daemon: /home/admin/shared/QDMI-Devices/build/src/databases/dcdb/libdcdb_device.so
+mqss_dcdb_daemon: /usr/local/lib/libInfluxDB.so.2.0.0
+mqss_dcdb_daemon: /usr/local/lib/libcpr.a
+mqss_dcdb_daemon: /usr/lib/x86_64-linux-gnu/libcurl.so
+mqss_dcdb_daemon: /usr/lib/x86_64-linux-gnu/libssl.so
+mqss_dcdb_daemon: /usr/lib/x86_64-linux-gnu/libcrypto.so
 mqss_dcdb_daemon: CMakeFiles/mqss_dcdb_daemon.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/admin/shared/MQSS-DCDB-Daemon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable mqss_dcdb_daemon"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/admin/shared/DCDB-Daemon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable mqss_dcdb_daemon"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mqss_dcdb_daemon.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -123,6 +128,6 @@ CMakeFiles/mqss_dcdb_daemon.dir/clean:
 .PHONY : CMakeFiles/mqss_dcdb_daemon.dir/clean
 
 CMakeFiles/mqss_dcdb_daemon.dir/depend:
-	cd /home/admin/shared/MQSS-DCDB-Daemon/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/admin/shared/MQSS-DCDB-Daemon /home/admin/shared/MQSS-DCDB-Daemon /home/admin/shared/MQSS-DCDB-Daemon/build /home/admin/shared/MQSS-DCDB-Daemon/build /home/admin/shared/MQSS-DCDB-Daemon/build/CMakeFiles/mqss_dcdb_daemon.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/admin/shared/DCDB-Daemon/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/admin/shared/DCDB-Daemon /home/admin/shared/DCDB-Daemon /home/admin/shared/DCDB-Daemon/build /home/admin/shared/DCDB-Daemon/build /home/admin/shared/DCDB-Daemon/build/CMakeFiles/mqss_dcdb_daemon.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/mqss_dcdb_daemon.dir/depend
 

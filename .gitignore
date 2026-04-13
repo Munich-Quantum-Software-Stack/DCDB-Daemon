@@ -1,7 +1,6 @@
 # Python-generated files
 __pycache__/
 *.py[oc]
-build/
 dist/
 wheels/
 *.egg-info
@@ -21,3 +20,19 @@ datasets/
 
 # MAC stuff
 .DS_Store
+
+# influxdb vendored source and deps
+utils/influxdb-c-client/influxdb-cxx/
+utils/influxdb-c-client/cpr/
+
+# Runtime config and credential files (use config-example.json as template)
+config.json
+examples/**/influxdb_credentials
+examples/**/build/
+
+# Third-party dependencies
+extern/
+
+# Build artifacts — shell scripts are kept via the exception below
+build/*
+!build/*.sh

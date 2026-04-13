@@ -7,11 +7,29 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 # The top level Makefile was generated from the following files:
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
-  "/home/admin/shared/MQSS-DCDB-Daemon/CMakeLists.txt"
+  "/home/admin/shared/DCDB-Daemon/CMakeLists.txt"
   "CMakeFiles/3.25.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.25.1/CMakeSystem.cmake"
+  "/usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake"
+  "/usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfigVersion.cmake"
+  "/usr/lib/x86_64-linux-gnu/cmake/BoostDetectToolset-1.74.0.cmake"
+  "/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0/boost_headers-config-version.cmake"
+  "/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0/boost_headers-config.cmake"
+  "/usr/lib/x86_64-linux-gnu/cmake/boost_system-1.74.0/boost_system-config-version.cmake"
+  "/usr/lib/x86_64-linux-gnu/cmake/boost_system-1.74.0/boost_system-config.cmake"
+  "/usr/lib/x86_64-linux-gnu/cmake/boost_system-1.74.0/libboost_system-variant-shared.cmake"
+  "/usr/lib/x86_64-linux-gnu/cmake/boost_system-1.74.0/libboost_system-variant-static.cmake"
+  "/usr/local/lib/cmake/InfluxDB/InfluxDBConfig.cmake"
+  "/usr/local/lib/cmake/InfluxDB/InfluxDBConfigVersion.cmake"
+  "/usr/local/lib/cmake/InfluxDB/InfluxDBTargets-relwithdebinfo.cmake"
+  "/usr/local/lib/cmake/InfluxDB/InfluxDBTargets.cmake"
+  "/usr/local/lib/cmake/cpr/cprConfig.cmake"
+  "/usr/local/lib/cmake/cpr/cprConfigVersion.cmake"
+  "/usr/local/lib/cmake/cpr/cprTargets-noconfig.cmake"
+  "/usr/local/lib/cmake/cpr/cprTargets.cmake"
   "/usr/share/cmake-3.25/Modules/CMakeCXXInformation.cmake"
   "/usr/share/cmake-3.25/Modules/CMakeCommonLanguageInclude.cmake"
+  "/usr/share/cmake-3.25/Modules/CMakeFindDependencyMacro.cmake"
   "/usr/share/cmake-3.25/Modules/CMakeGenericSystem.cmake"
   "/usr/share/cmake-3.25/Modules/CMakeInitializeConfigs.cmake"
   "/usr/share/cmake-3.25/Modules/CMakeLanguageInformation.cmake"
@@ -23,14 +41,21 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/share/cmake-3.25/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
   "/usr/share/cmake-3.25/Modules/Compiler/GNU-CXX.cmake"
   "/usr/share/cmake-3.25/Modules/Compiler/GNU.cmake"
+  "/usr/share/cmake-3.25/Modules/FetchContent.cmake"
+  "/usr/share/cmake-3.25/Modules/FetchContent/CMakeLists.cmake.in"
+  "/usr/share/cmake-3.25/Modules/FindBoost.cmake"
+  "/usr/share/cmake-3.25/Modules/FindCURL.cmake"
+  "/usr/share/cmake-3.25/Modules/FindOpenSSL.cmake"
   "/usr/share/cmake-3.25/Modules/FindPackageHandleStandardArgs.cmake"
   "/usr/share/cmake-3.25/Modules/FindPackageMessage.cmake"
+  "/usr/share/cmake-3.25/Modules/FindPkgConfig.cmake"
   "/usr/share/cmake-3.25/Modules/FindThreads.cmake"
   "/usr/share/cmake-3.25/Modules/Internal/CheckSourceCompiles.cmake"
   "/usr/share/cmake-3.25/Modules/Platform/Linux-GNU-CXX.cmake"
   "/usr/share/cmake-3.25/Modules/Platform/Linux-GNU.cmake"
   "/usr/share/cmake-3.25/Modules/Platform/Linux.cmake"
   "/usr/share/cmake-3.25/Modules/Platform/UnixPaths.cmake"
+  "/usr/share/cmake-3.25/Modules/SelectLibraryConfigurations.cmake"
   )
 
 # The corresponding makefile is:
@@ -41,6 +66,7 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
+  "_deps/nlohmann_json-subbuild/CMakeLists.txt"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 

@@ -1,7 +1,6 @@
 CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
- /home/admin/shared/MQSS-DCDB-Daemon/src/daemon.cpp \
- /usr/include/stdc-predef.h \
- /home/admin/shared/MQSS-DCDB-Daemon/src/daemon.hpp \
+ /home/admin/shared/DCDB-Daemon/src/daemon.cpp /usr/include/stdc-predef.h \
+ /home/admin/shared/DCDB-Daemon/src/daemon.hpp \
  /usr/include/c++/12/cstdint \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
@@ -37,13 +36,22 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
- /usr/include/c++/12/type_traits /usr/include/c++/12/bits/allocator.h \
+ /usr/include/c++/12/type_traits /usr/include/c++/12/compare \
+ /usr/include/c++/12/concepts /usr/include/c++/12/bits/stl_construct.h \
+ /usr/include/c++/12/new /usr/include/c++/12/bits/exception.h \
+ /usr/include/c++/12/bits/move.h \
+ /usr/include/c++/12/bits/stl_iterator_base_types.h \
+ /usr/include/c++/12/bits/iterator_concepts.h \
+ /usr/include/c++/12/bits/ptr_traits.h \
+ /usr/include/c++/12/bits/ranges_cmp.h \
+ /usr/include/c++/12/bits/stl_iterator_base_funcs.h \
+ /usr/include/c++/12/bits/concept_check.h \
+ /usr/include/c++/12/debug/assertions.h \
+ /usr/include/c++/12/bits/allocator.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++allocator.h \
- /usr/include/c++/12/bits/new_allocator.h /usr/include/c++/12/new \
- /usr/include/c++/12/bits/exception.h \
+ /usr/include/c++/12/bits/new_allocator.h \
  /usr/include/c++/12/bits/functexcept.h \
  /usr/include/c++/12/bits/exception_defines.h \
- /usr/include/c++/12/bits/move.h \
  /usr/include/c++/12/bits/cpp_type_traits.h \
  /usr/include/c++/12/bits/localefwd.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++locale.h \
@@ -54,13 +62,8 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/endianness.h \
  /usr/include/c++/12/bits/ostream_insert.h \
  /usr/include/c++/12/bits/cxxabi_forced.h \
- /usr/include/c++/12/bits/stl_iterator_base_types.h \
- /usr/include/c++/12/bits/stl_iterator_base_funcs.h \
- /usr/include/c++/12/bits/concept_check.h \
- /usr/include/c++/12/debug/assertions.h \
  /usr/include/c++/12/bits/stl_iterator.h \
  /usr/include/c++/12/ext/type_traits.h \
- /usr/include/c++/12/bits/ptr_traits.h \
  /usr/include/c++/12/bits/stl_function.h \
  /usr/include/c++/12/backward/binders.h \
  /usr/include/c++/12/ext/numeric_traits.h \
@@ -73,10 +76,11 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /usr/include/c++/12/initializer_list \
  /usr/include/c++/12/bits/basic_string.h \
  /usr/include/c++/12/ext/alloc_traits.h \
- /usr/include/c++/12/bits/alloc_traits.h \
- /usr/include/c++/12/bits/stl_construct.h /usr/include/c++/12/string_view \
+ /usr/include/c++/12/bits/alloc_traits.h /usr/include/c++/12/string_view \
  /usr/include/c++/12/bits/functional_hash.h \
  /usr/include/c++/12/bits/hash_bytes.h \
+ /usr/include/c++/12/bits/ranges_base.h \
+ /usr/include/c++/12/bits/max_size_type.h /usr/include/c++/12/numbers \
  /usr/include/c++/12/bits/string_view.tcc \
  /usr/include/c++/12/ext/string_conversions.h /usr/include/c++/12/cstdlib \
  /usr/include/stdlib.h /usr/include/x86_64-linux-gnu/bits/waitflags.h \
@@ -170,7 +174,7 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /home/admin/shared/QDMI-Devices/build/src/databases/dcdb/include/dcdb_qdmi/types.h \
  /usr/include/c++/12/cstddef \
  /home/admin/shared/QDMI-Devices/build/src/databases/dcdb/include/sensors.h \
- /usr/include/c++/12/array /usr/include/c++/12/compare \
+ /usr/include/c++/12/array \
  /home/admin/shared/DCDB/install/include/dcdb/sensor.h \
  /home/admin/shared/DCDB/install/include/dcdb/sensorconfig.h \
  /usr/include/fcntl.h /usr/include/x86_64-linux-gnu/bits/fcntl.h \
@@ -311,6 +315,11 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /home/admin/shared/DCDB/install/include/boost/preprocessor/variadic/size.hpp \
  /home/admin/shared/DCDB/install/include/boost/preprocessor/facilities/check_empty.hpp \
  /home/admin/shared/DCDB/install/include/boost/preprocessor/variadic/has_opt.hpp \
+ /home/admin/shared/DCDB/install/include/boost/preprocessor/variadic/detail/has_opt.hpp \
+ /home/admin/shared/DCDB/install/include/boost/preprocessor/facilities/is_empty_variadic.hpp \
+ /home/admin/shared/DCDB/install/include/boost/preprocessor/punctuation/is_begin_parens.hpp \
+ /home/admin/shared/DCDB/install/include/boost/preprocessor/punctuation/detail/is_begin_parens.hpp \
+ /home/admin/shared/DCDB/install/include/boost/preprocessor/facilities/detail/is_empty.hpp \
  /home/admin/shared/DCDB/install/include/boost/preprocessor/variadic/limits/size_64.hpp \
  /home/admin/shared/DCDB/install/include/boost/preprocessor/tuple/rem.hpp \
  /home/admin/shared/DCDB/install/include/boost/preprocessor/tuple/detail/is_single_return.hpp \
@@ -700,10 +709,6 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /home/admin/shared/DCDB/install/include/boost/preprocessor/if.hpp \
  /home/admin/shared/DCDB/install/include/boost/preprocessor/seq/push_front.hpp \
  /home/admin/shared/DCDB/install/include/boost/preprocessor/facilities/is_empty.hpp \
- /home/admin/shared/DCDB/install/include/boost/preprocessor/facilities/is_empty_variadic.hpp \
- /home/admin/shared/DCDB/install/include/boost/preprocessor/punctuation/is_begin_parens.hpp \
- /home/admin/shared/DCDB/install/include/boost/preprocessor/punctuation/detail/is_begin_parens.hpp \
- /home/admin/shared/DCDB/install/include/boost/preprocessor/facilities/detail/is_empty.hpp \
  /home/admin/shared/DCDB/install/include/boost/fusion/adapted/struct/detail/at_impl.hpp \
  /home/admin/shared/DCDB/install/include/boost/fusion/adapted/struct/detail/is_view_impl.hpp \
  /home/admin/shared/DCDB/install/include/boost/fusion/adapted/struct/detail/is_sequence_impl.hpp \
@@ -748,7 +753,16 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /usr/include/c++/12/bits/shared_ptr_atomic.h \
  /usr/include/c++/12/bits/atomic_base.h \
  /usr/include/c++/12/bits/atomic_lockfree_defines.h \
+ /usr/include/c++/12/bits/atomic_wait.h /usr/include/syscall.h \
+ /usr/include/x86_64-linux-gnu/sys/syscall.h \
+ /usr/include/x86_64-linux-gnu/asm/unistd.h \
+ /usr/include/x86_64-linux-gnu/asm/unistd_64.h \
+ /usr/include/x86_64-linux-gnu/bits/syscall.h \
+ /usr/include/c++/12/bits/std_mutex.h \
  /usr/include/c++/12/backward/auto_ptr.h \
+ /usr/include/c++/12/bits/ranges_uninitialized.h \
+ /usr/include/c++/12/bits/ranges_algobase.h \
+ /usr/include/c++/12/bits/uses_allocator_args.h \
  /usr/include/c++/12/pstl/glue_memory_defs.h \
  /usr/include/c++/12/pstl/execution_defs.h \
  /home/admin/shared/DCDB/install/include/boost/type_traits/is_member_object_pointer.hpp \
@@ -1006,6 +1020,7 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /home/admin/shared/DCDB/install/include/boost/exception/exception.hpp \
  /home/admin/shared/DCDB/install/include/boost/assert/source_location.hpp \
  /home/admin/shared/DCDB/install/include/boost/current_function.hpp \
+ /usr/include/c++/12/source_location \
  /home/admin/shared/DCDB/install/include/boost/core/demangle.hpp \
  /usr/include/c++/12/cxxabi.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/cxxabi_tweaks.h \
@@ -1037,8 +1052,7 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /home/admin/shared/DCDB/install/include/boost/system/detail/error_category_impl.hpp \
  /home/admin/shared/DCDB/install/include/boost/system/detail/std_category_impl.hpp \
  /home/admin/shared/DCDB/install/include/boost/system/detail/mutex.hpp \
- /usr/include/c++/12/mutex /usr/include/c++/12/bits/std_mutex.h \
- /usr/include/c++/12/bits/unique_lock.h \
+ /usr/include/c++/12/mutex /usr/include/c++/12/bits/unique_lock.h \
  /home/admin/shared/DCDB/install/include/boost/system/error_condition.hpp \
  /home/admin/shared/DCDB/install/include/boost/system/errc.hpp \
  /home/admin/shared/DCDB/install/include/boost/system/generic_category.hpp \
@@ -1167,7 +1181,8 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /home/admin/shared/DCDB/install/include/boost/type_traits/make_void.hpp \
  /home/admin/shared/DCDB/install/include/boost/log/utility/value_ref_fwd.hpp \
  /home/admin/shared/DCDB/install/include/boost/log/utility/type_dispatch/static_type_dispatcher.hpp \
- /usr/include/c++/12/algorithm \
+ /usr/include/c++/12/algorithm /usr/include/c++/12/bits/ranges_algo.h \
+ /usr/include/c++/12/bits/ranges_util.h \
  /usr/include/c++/12/pstl/glue_algorithm_defs.h \
  /home/admin/shared/DCDB/install/include/boost/array.hpp \
  /home/admin/shared/DCDB/install/include/boost/core/swap.hpp \
@@ -1675,11 +1690,8 @@ CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o: \
  /home/admin/shared/DCDB/install/include/boost/atomic/detail/capabilities.hpp \
  /home/admin/shared/DCDB/install/include/boost/atomic/detail/platform.hpp \
  /home/admin/shared/DCDB/install/include/boost/atomic/detail/futex.hpp \
- /usr/include/x86_64-linux-gnu/sys/syscall.h \
- /usr/include/x86_64-linux-gnu/asm/unistd.h \
- /usr/include/x86_64-linux-gnu/asm/unistd_64.h \
- /usr/include/x86_64-linux-gnu/bits/syscall.h /usr/include/linux/futex.h \
- /usr/include/linux/types.h /usr/include/x86_64-linux-gnu/asm/types.h \
+ /usr/include/linux/futex.h /usr/include/linux/types.h \
+ /usr/include/x86_64-linux-gnu/asm/types.h \
  /usr/include/asm-generic/types.h /usr/include/asm-generic/int-ll64.h \
  /usr/include/x86_64-linux-gnu/asm/bitsperlong.h \
  /usr/include/asm-generic/bitsperlong.h /usr/include/linux/posix_types.h \

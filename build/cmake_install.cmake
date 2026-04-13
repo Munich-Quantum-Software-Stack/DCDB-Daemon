@@ -1,4 +1,4 @@
-# Install script for directory: /home/admin/shared/MQSS-DCDB-Daemon
+# Install script for directory: /home/admin/shared/DCDB-Daemon
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/admin/shared/MQSS-DCDB-Daemon/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/admin/shared/DCDB-Daemon/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

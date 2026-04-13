@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/admin/shared/MQSS-DCDB-Daemon/src/daemon.cpp" "CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o" "gcc" "CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o.d"
-  "/home/admin/shared/MQSS-DCDB-Daemon/src/main.cpp" "CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o" "gcc" "CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o.d"
+  "/home/admin/shared/DCDB-Daemon/src/daemon.cpp" "CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o" "gcc" "CMakeFiles/mqss_dcdb_daemon.dir/src/daemon.cpp.o.d"
+  "/home/admin/shared/DCDB-Daemon/src/main.cpp" "CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o" "gcc" "CMakeFiles/mqss_dcdb_daemon.dir/src/main.cpp.o.d"
   )
 
 # Targets to which this target links.

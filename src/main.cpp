@@ -1,6 +1,7 @@
 #include "daemon.hpp"
 #include "arguments.hpp"
 #include "database.hpp"
+#include "config.hpp"
 
 #include <iostream>
 #include <cstdlib>
@@ -8,6 +9,9 @@
 #include <atomic>
 #include <csignal>
 #include <thread>
+#include <cerrno>
+#include <cstring>
+#include <sys/wait.h>
 
 // Global flag — set to false when Ctrl+C is pressed
 static std::atomic<bool> running{true};
@@ -39,19 +43,25 @@ int main(int argc, char **argv)
 
     // --- Step 1: Parse and validate arguments first ---
     Arguments args = parse_args(argc, argv);
-    const int sensor_dev_id = std::stoi(args.sensor_id);
-    if (sensor_dev_id < 0) {
-        std::cerr << "Fatal: Invalid sensor device id: " << sensor_dev_id << '\n';
+
+    // --- Step 1b: Load JSON config ---
+    AppConfig app_cfg;
+    try {
+        app_cfg = load_config(args.config_path);
+    } catch (const std::exception& e) {
+        std::cerr << "Fatal: " << e.what() << '\n';
         return 1;
     }
+    std::cout << "Loaded config from: " << args.config_path << '\n'
+              << "Active sensors: " << app_cfg.data_sources.size() << '\n';
 
     // --- Step 2: Connect to InfluxDB ---
-    auto db = influxdb::InfluxDBFactory::Get(INFLUX_URL);
+    auto db = influxdb::InfluxDBFactory::Get(app_cfg.influx_url);
     if (!db) {
         std::cerr << "Fatal: could not connect to InfluxDB\n";
         return 1;
     }
-    std::cout << "Connected to InfluxDB: " << INFLUX_URL << '\n';
+    std::cout << "Connected to InfluxDB: " << app_cfg.influx_url << '\n';
 
     // --- Step 3: Initialize DCDB Config ---
     Config cfg;
@@ -64,7 +74,6 @@ int main(int argc, char **argv)
 
         size_t size = 0;
         static DCDB_QDMI_Device_Session session;
-        DCDB_QDMI_Device_TelemetrySensor_Query query;
 
         // Allocate and intialize the QDMI session
         DCDB_QDMI_device_initialize();
@@ -108,7 +117,7 @@ int main(int argc, char **argv)
         while (running) {
             auto loop_start = std::chrono::steady_clock::now();
 
-            int duration_minutes = 10;
+            int duration_minutes = 5;
             int two_hours_ago = 120;
             auto time_now   = std::chrono::system_clock::now();
             auto time_start = time_now - std::chrono::minutes(two_hours_ago + duration_minutes);
@@ -131,57 +140,82 @@ int main(int argc, char **argv)
                       << "------------------------------------------\n";
 
             // --- Query and write ---
-            for (const auto& src : DATA_SOURCES) {
+            // Each sensor runs in a child process so that a library crash
+            // (heap corruption → SIGABRT) only kills the child, not the daemon.
+            for (const auto& src : app_cfg.data_sources) {
 
-                // check between sensors too
                 if (!running) break;
 
-                try {
-                    // Fresh query handle for each sensor
-                    DCDB_QDMI_device_session_create_device_telemetrysensor_query(session, &query);
+                std::cout << "\nSensor ID: "   << src.sensor_id
+                          << "\nDivisor:     " << src.divisor
+                          << "\nMeasurement: " << src.measurement
+                          << "\nField:       " << src.field_name << '\n';
+                std::cout << "------------------------------------------" << std::endl;
 
-                // if (src.sensor_id == sensor_dev_id) {
-                    std::cout << "\nSensor ID: "   << src.sensor_id
-                              << "\nDivisor:     " << src.divisor
-                              << "\nMeasurement: " << src.measurement
-                              << "\nField:       " << src.field_name << '\n';
-                    std::cout << "------------------------------------------" << std::endl;
+                pid_t child_pid = fork();
+                if (child_pid < 0) {
+                    std::cerr << "fork() failed for sensor " << src.sensor_id
+                              << ": " << std::strerror(errno) << " — skipping\n";
+                    continue;
+                }
 
-                    DCDB_QDMI_TelemetrySensor sensor_dev = envs.at(sensor_dev_id);
+                if (child_pid == 0) {
+                    // ---- Child process ----
+                    // Ignore Ctrl+C and SIGTERM — the parent handles shutdown and will
+                    // SIGKILL us if needed. Without this, both parent and child would
+                    // print the signal message and the child would never exit cleanly.
+                    std::signal(SIGINT,  SIG_IGN);
+                    std::signal(SIGTERM, SIG_IGN);
 
-                    // Check the sensor id name
-                    std::string sensor_name = check_sensor_device_id(session, sensor_dev);
-
-                    // Query the sensor data
-                    DCDBSensorQueryResult query_results = mqss_dcdb_query_sensor_data(session, query, sensor_dev, sta_ts, end_ts);
-                    
-                    // Write to InfluxDB
-                    const std::string sensor_path = sensor_name;
-                    write_to_influxdb(*db, query_results, sensor_path, src);
-
-                    // Explicitly clear results after writing
-                    query_results.values.clear();
-                    query_results.timestamps.clear();
-                    query_results.values.shrink_to_fit();
-                    query_results.timestamps.shrink_to_fit();
-
-                    // Fresh query handle for each sensor
-                    DCDB_QDMI_device_telemetrysensor_query_free(query);
-                // }
-                } catch (const std::exception& e) {
-                    std::cerr << "Skipping sensor " << src.sensor_id
-                              << " (" << src.field_name << "): " << e.what() << '\n';
-
-                    // Try to recover the query handle for the next sensor
+                    // Owns its own InfluxDB connection so the parent's socket is untouched.
+                    // Uses _exit() to skip C++ destructors on shared resources.
                     try {
-                        DCDB_QDMI_device_telemetrysensor_query_free(query);
-                        DCDB_QDMI_device_session_create_device_telemetrysensor_query(session, &query);
-                    } catch (...) {
-                        std::cerr << "Query handle recovery failed for sensor "
-                                  << src.sensor_id << ", continuing...\n";
-                    }
+                        DCDB_QDMI_Device_TelemetrySensor_Query child_query;
+                        auto child_db = influxdb::InfluxDBFactory::Get(app_cfg.influx_url);
 
-                    continue;  // skip to next sensor
+                        DCDB_QDMI_device_session_create_device_telemetrysensor_query(session, &child_query);
+                        DCDB_QDMI_TelemetrySensor sensor_dev = envs.at(src.sensor_id);
+                        std::string sensor_name = check_sensor_device_id(session, sensor_dev);
+
+                        DCDBSensorQueryResult query_results = mqss_dcdb_query_sensor_data(
+                            session, child_query, sensor_dev, sta_ts, end_ts);
+
+                        write_to_influxdb(*child_db, query_results, sensor_name, src);
+
+                        DCDB_QDMI_device_telemetrysensor_query_free(child_query);
+                    } catch (const std::exception& e) {
+                        std::cerr << "Sensor " << src.sensor_id
+                                  << " exception: " << e.what() << '\n';
+                        _exit(1);
+                    }
+                    _exit(0);
+                }
+
+                // ---- Parent process: wait for child with timeout ----
+                int status = 0;
+                const int timeout_seconds = 10;
+                bool timed_out = true;
+
+                for (int i = 0; i < timeout_seconds; ++i) {
+                    pid_t ret = waitpid(child_pid, &status, WNOHANG);
+                    if (ret == child_pid) { timed_out = false; break; }
+                    if (!running) break;  // Ctrl+C — let fall through to kill
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                }
+
+                if (timed_out || !running) {
+                    kill(child_pid, SIGKILL);
+                    waitpid(child_pid, &status, 0);
+                    std::cerr << "Sensor " << src.sensor_id
+                              << " (" << src.field_name << ") timed out after "
+                              << timeout_seconds << "s — killed\n";
+                } else if (WIFSIGNALED(status)) {
+                    std::cerr << "Sensor " << src.sensor_id
+                              << " (" << src.field_name << ")"
+                              << " crashed (signal " << WTERMSIG(status) << ") — skipping\n";
+                } else if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+                    std::cerr << "Sensor " << src.sensor_id
+                              << " (" << src.field_name << ") failed — skipping\n";
                 }
             }
 
@@ -194,7 +228,6 @@ int main(int argc, char **argv)
 
         // Tear down the session and clean up
         std::cout << "Cleaning up QDMI session and resources..." << std::endl;
-        DCDB_QDMI_device_telemetrysensor_query_free(query);
         DCDB_QDMI_device_session_free(session);
         DCDB_QDMI_device_finalize();
 

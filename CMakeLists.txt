@@ -5,7 +5,7 @@
 # "License"); you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# https://github.com/Munich-Quantum-Software-Stack/QDMI/blob/develop/LICENSE
+# https://github.com/Munich-Quantum-Software-Stack/
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -53,6 +53,7 @@ set(ENV_QDMI_DEV_LIB    $ENV{QDMI_DCDB_DEV_LIB_DIR})
 # message(STATUS "ENV_QDMI_DEV_LIB  = ${ENV_QDMI_DEV_LIB}")
 
 # Find the header files of dependencies
+find_package(InfluxDB)
 find_path(DCDB_INCLUDE_DIR NAMES dcdb/sensorconfig.h
   HINTS ${ENV_DCDB_INC} )
 find_path(DCDB_COMMON_INCLUDE_DIR NAMES metadatastore.h
@@ -76,6 +77,22 @@ find_library(DCDB_QDMI_LIBRARY NAMES dcdb_qdmi dcdb_qdmi_devices dcdb_device
 message(STATUS "DCDB_LIBRARY      = ${DCDB_LIBRARY}")
 message(STATUS "DCDB_QDMI_LIBRARY = ${DCDB_QDMI_LIBRARY}")
 
+# nlohmann/json — header-only JSON parser fetched at configure time.
+# include.zip extracts to <source_dir>/include/nlohmann/json.hpp
+include(FetchContent)
+FetchContent_Declare(
+  nlohmann_json
+  URL https://github.com/nlohmann/json/releases/download/v3.11.3/include.zip
+  URL_HASH SHA256=a22461d13119ac5c78f205d3df1db13403e58ce1bb1794edc9313677313f4a9d
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
+# Interface target pointing at the include/ subdir inside the extracted zip
+add_library(nlohmann_json_iface INTERFACE)
+target_include_directories(nlohmann_json_iface INTERFACE
+  ${nlohmann_json_SOURCE_DIR}/include
+)
+
 # Maybe thread lib on Linux
 find_package(Threads REQUIRED)
 
@@ -88,9 +105,11 @@ target_include_directories(mqss_dcdb_daemon PRIVATE
 )
 
 # Apply linking the dependencies
-target_link_libraries(mqss_dcdb_daemon PRIVATE 
+target_link_libraries(mqss_dcdb_daemon PRIVATE
   ${DCDB_LIBRARY}
   ${DCDB_QDMI_LIBRARY}
   Threads::Threads
+  InfluxData::InfluxDB
+  nlohmann_json_iface
 )
 
