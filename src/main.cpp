@@ -4,6 +4,8 @@
 #include "config.hpp"
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cstdlib>
 #include <chrono>
 #include <atomic>
@@ -12,6 +14,49 @@
 #include <cerrno>
 #include <cstring>
 #include <sys/wait.h>
+
+// TeeStreambuf: duplicates all writes to both a primary and a secondary streambuf.
+// Used so that std::cout / std::cerr write to terminal AND log file simultaneously.
+struct TeeStreambuf : std::streambuf {
+    TeeStreambuf(std::streambuf* primary, std::streambuf* secondary)
+        : primary_(primary), secondary_(secondary) {}
+
+protected:
+    int overflow(int c) override {
+        if (c == EOF) return EOF;
+        if (primary_->sputc(c) == EOF) return EOF;
+        secondary_->sputc(c);  // best-effort; ignore file errors
+        return c;
+    }
+    std::streamsize xsputn(const char* s, std::streamsize n) override {
+        std::streamsize written = primary_->sputn(s, n);
+        secondary_->sputn(s, n);
+        return written;
+    }
+    int sync() override {
+        int r = primary_->pubsync();
+        secondary_->pubsync();  // flush file buffer to disk
+        return r;
+    }
+
+private:
+    std::streambuf* primary_;
+    std::streambuf* secondary_;
+};
+
+// State file helpers
+static uint64_t read_state_file(const std::string& path) {
+    std::ifstream f(path);
+    if (!f.is_open()) return 0;
+    uint64_t ts = 0;
+    f >> ts;
+    return ts;
+}
+
+static void write_state_file(const std::string& path, uint64_t end_ts) {
+    std::ofstream f(path, std::ios::trunc);
+    if (f.is_open()) f << end_ts << '\n';
+}
 
 // Global flag — set to false when Ctrl+C is pressed
 static std::atomic<bool> running{true};
@@ -23,28 +68,50 @@ static void signal_handler(int signal) {
 }
 
 // Add alongside your SIGINT handler at the top of main.cpp
+// We can't safely continue after SIGSEGV, but we can at least log it
+// The safest option is to just exit cleanly
 static void crash_handler(int signal) {
     std::cerr << "\nCaught signal " << signal << " (SIGSEGV/SIGABRT), "
               << "attempting to continue...\n";
-    // We can't safely continue after SIGSEGV, but we can at least log it
-    // The safest option is to just exit cleanly
     running = false;
 }
 
 int main(int argc, char **argv)
 {
     // Register signal handlers
-    std::signal(SIGINT,  signal_handler);  // Ctrl+C
-    std::signal(SIGTERM, signal_handler);  // kill command
-    std::cout << "Daemon running. Press Ctrl+C to stop.\n";
+    std::signal(SIGINT,  signal_handler);   // Ctrl+C
+    std::signal(SIGTERM, signal_handler);   // kill command
 
     // std::signal(SIGSEGV, crash_handler);  // segfault
     // std::signal(SIGABRT, crash_handler);  // abort (heap corruption)
 
-    // --- Step 1a: Parse and validate arguments first ---
+    // Step 1a: Parse and validate arguments first
     Arguments args = parse_args(argc, argv);
 
-    // --- Step 1b: Load JSON config ---
+    // Step 1b: Set up log file tee (stdout + file)
+    std::ofstream log_stream;
+    std::unique_ptr<TeeStreambuf> tee_out, tee_err;
+    std::streambuf* orig_cout = nullptr;
+    std::streambuf* orig_cerr = nullptr;
+    if (!args.log_file.empty()) {
+        log_stream.open(args.log_file, std::ios::app);
+        if (!log_stream.is_open()) {
+            std::cerr << "Warning: could not open log file: " << args.log_file << '\n';
+        } else {
+            orig_cout = std::cout.rdbuf();
+            orig_cerr = std::cerr.rdbuf();
+            tee_out = std::make_unique<TeeStreambuf>(orig_cout, log_stream.rdbuf());
+            tee_err = std::make_unique<TeeStreambuf>(orig_cerr, log_stream.rdbuf());
+            std::cout.rdbuf(tee_out.get());
+            std::cerr.rdbuf(tee_err.get());
+        }
+    }
+
+    std::cout << "Daemon starting. Press Ctrl+C to stop.\n";
+    if (!args.log_file.empty())
+        std::cout << "Logging to: " << args.log_file << '\n';
+
+    // Step 1c: Load JSON config
     AppConfig app_cfg;
     try {
         app_cfg = load_config(args.config_path);
@@ -55,7 +122,7 @@ int main(int argc, char **argv)
     std::cout << "Loaded config from: " << args.config_path << '\n'
               << "Active sensors: " << app_cfg.data_sources.size() << '\n';
 
-    // --- Step 2: Connect to InfluxDB ---
+    // Step 2: Connect to InfluxDB
     auto db = influxdb::InfluxDBFactory::Get(app_cfg.influx_url);
     if (!db) {
         std::cerr << "Fatal: could not connect to InfluxDB\n";
@@ -63,11 +130,21 @@ int main(int argc, char **argv)
     }
     std::cout << "Connected to InfluxDB: " << app_cfg.influx_url << '\n';
 
-    // --- Step 3: Initialize DCDB Config ---
+    // Step 3: Initialize DCDB Config
     Config cfg;
     cfg.daemon_id        = 101;
     cfg.daemon_name      = "mqss-dcdb-daemon";
-    cfg.dcdb_host_server = "host.docker.internal:9042";
+    // Use --dcdb-url if provided, otherwise fall back to the default (host.docker.internal:9042).
+    cfg.dcdb_host_server = args.dcdb_url;
+    // NOTE: dcdb_host_server is the address of the DCDB/Cassandra (ScyllaDB) backend.
+    // - On Mac with Docker Desktop: "host.docker.internal:9042" reaches the host machine
+    //   from inside a container (Docker Desktop provides this DNS name automatically).
+    // - On a Linux VM running the daemon directly (no container): use "localhost:9042"
+    //   or the VM's IP address, e.g. "192.168.1.10:9042".
+    // - On a Linux VM with the daemon inside a container: use the VM's host IP or the
+    //   Docker bridge gateway (typically "172.17.0.1:9042"), NOT "host.docker.internal"
+    //   (that DNS name is only available on Docker Desktop for Mac/Windows).
+    // This value can also be overridden at runtime via the --dcdb-url flag.
 
     try {
         Daemon dm(cfg);
@@ -98,33 +175,42 @@ int main(int argc, char **argv)
                   << "Daemon running. Press Ctrl+C to stop.\n"
                   << "------------------------------------------\n";
 
-        /*
-        * Convert to unix epoch seconds format, for example,
-        *  + 1745644603 --> 2025-04-26 07:16:43
-        *  + 1745817403 --> 2025-04-28 07:16:43
-        * std::string start_timestamp = "2025-06-26 07:16:10";
-        * std::string end_timestamp   = "2025-06-26 07:26:10";
-        * uint64_t sta_ts = timestamp2unix_epoch_seconds(start_timestamp);
-        * uint64_t end_ts = timestamp2unix_epoch_seconds(end_timestamp);
-        */
+        // Step 4a: Read last state (only when --resume is passed)
+        uint64_t last_end_ts = 0;
+        if (args.resume) {
+            last_end_ts = read_state_file(args.state_file);
+            if (last_end_ts > 0) {
+                std::time_t t_last = static_cast<std::time_t>(last_end_ts);
+                std::string str_last = std::ctime(&t_last);
+                if (!str_last.empty() && str_last.back() == '\n') str_last.pop_back();
+                std::cout << "Resuming from state file (" << args.state_file
+                          << "): last end_ts = " << str_last << '\n';
+            } else {
+                std::cout << "--resume set but no state file found (" << args.state_file
+                          << "); starting from [now - " << args.minutes_ago.value_or(5) << "min]\n";
+            }
+        }
 
-        /* 
-        * The main loop of the daemon — runs until Ctrl+C is pressed. In a real implementation, 
-        * we can add some sleep/delay here to avoid busy-waiting
-        */
-
-        // --- Step 4: Main loop ---
+        // Step 4: Main loop
         while (running) {
             auto loop_start = std::chrono::steady_clock::now();
 
-            int duration_minutes = 5;
-            int two_hours_ago = 120;
-            auto time_now   = std::chrono::system_clock::now();
-            auto time_start = time_now - std::chrono::minutes(two_hours_ago + duration_minutes);
-            auto time_end = time_now - std::chrono::minutes(two_hours_ago);
-
-            uint64_t sta_ts = static_cast<uint64_t>(std::chrono::system_clock::to_time_t(time_start));
-            uint64_t end_ts = static_cast<uint64_t>(std::chrono::system_clock::to_time_t(time_end));
+            // Query window: [sta_ts, end_ts]
+            // On the first iteration after a restart, resume from last_end_ts so no
+            // data is missed. On subsequent iterations use [now-5min, now].
+            const int duration_minutes = args.minutes_ago.value_or(5);
+            auto time_now = std::chrono::system_clock::now();
+            uint64_t end_ts = static_cast<uint64_t>(std::chrono::system_clock::to_time_t(time_now));
+            uint64_t sta_ts;
+            // Catch-up: query from where we left off to now
+            if (last_end_ts > 0) {
+                sta_ts = last_end_ts;
+            } else {
+                auto time_start = time_now - std::chrono::minutes(duration_minutes);
+                sta_ts = static_cast<uint64_t>(std::chrono::system_clock::to_time_t(time_start));
+            }
+            // Clear so subsequent loops use the rolling window
+            last_end_ts = 0;
 
             std::time_t t_start = static_cast<std::time_t>(sta_ts);
             std::time_t t_end   = static_cast<std::time_t>(end_ts);
@@ -161,6 +247,28 @@ int main(int argc, char **argv)
 
                 if (child_pid == 0) {
                     // ---- Child process ----
+                    // Restore original streambufs so the child is no longer writing
+                    // through the parent's TeeStreambuf/filebuf (not fork-safe).
+                    if (orig_cout) std::cout.rdbuf(orig_cout);
+                    if (orig_cerr) std::cerr.rdbuf(orig_cerr);
+
+                    // Open a fresh log stream for this child (append mode).
+                    // _exit() skips C++ destructors, so we flush explicitly before
+                    // every exit point below.
+                    std::ofstream child_log;
+                    std::unique_ptr<TeeStreambuf> child_tee_out, child_tee_err;
+                    if (!args.log_file.empty()) {
+                        child_log.open(args.log_file, std::ios::app);
+                        if (child_log.is_open()) {
+                            child_tee_out = std::make_unique<TeeStreambuf>(
+                                std::cout.rdbuf(), child_log.rdbuf());
+                            child_tee_err = std::make_unique<TeeStreambuf>(
+                                std::cerr.rdbuf(), child_log.rdbuf());
+                            std::cout.rdbuf(child_tee_out.get());
+                            std::cerr.rdbuf(child_tee_err.get());
+                        }
+                    }
+
                     // Ignore Ctrl+C and SIGTERM — the parent handles shutdown and will
                     // SIGKILL us if needed. Without this, both parent and child would
                     // print the signal message and the child would never exit cleanly.
@@ -208,8 +316,10 @@ int main(int argc, char **argv)
                     } catch (const std::exception& e) {
                         std::cerr << "Sensor " << src.sensor_id
                                   << " exception: " << e.what() << '\n';
+                        std::cout.flush(); std::cerr.flush();
                         _exit(1);
                     }
+                    std::cout.flush(); std::cerr.flush();
                     _exit(0);
                 }
 
@@ -241,8 +351,15 @@ int main(int argc, char **argv)
                 }
             }
 
-            // --- Sleep for 5 minutes, but wake up early if stopped ---
-            auto next_run = loop_start + std::chrono::minutes(5);
+            // --- Persist state so a restart can resume from here ---
+            if (!args.state_file.empty()) {
+                write_state_file(args.state_file, end_ts);
+                std::cout << "State saved: end_ts = " << end_ts
+                          << " (" << args.state_file << ")\n";
+            }
+
+            // --- Sleep for duration_minutes, but wake up early if stopped ---
+            auto next_run = loop_start + std::chrono::minutes(duration_minutes);
             while (running && std::chrono::steady_clock::now() < next_run) {
                 std::this_thread::sleep_for(std::chrono::seconds(1));
             }
@@ -253,10 +370,17 @@ int main(int argc, char **argv)
         DCDB_QDMI_device_session_free(session);
         DCDB_QDMI_device_finalize();
 
+        // Restore original cout/cerr streambufs before log_stream is destroyed
+        if (orig_cout) std::cout.rdbuf(orig_cout);
+        if (orig_cerr) std::cerr.rdbuf(orig_cerr);
+
         return 0;
     }
     catch (const std::exception &ex){
         std::cerr << "Fatal: " << ex.what() << std::endl;
+        // Restore original streambufs on error path too
+        if (orig_cout) std::cout.rdbuf(orig_cout);
+        if (orig_cerr) std::cerr.rdbuf(orig_cerr);
         return 1;
     }
 }
