@@ -1,14 +1,28 @@
+import os
 import subprocess
 import time
 from datetime import datetime
 from influxdb import InfluxDBClient
 
-# InfluxDB configuration
-INFLUX_HOST = "portal-telemetry.quantum.lrz.de"
-INFLUX_PORT = 8086
-INFLUX_DATABASE = "warmlab"
-INFLUX_USERNAME = "telemetry_influx_admin"  # Replace with your InfluxDB username
-INFLUX_PASSWORD = "gXMfvg3J5a8Rup45"  # Replace with your InfluxDB password
+# InfluxDB configuration — read from environment variables.
+# Create a .env file (never commit it) and export the variables before running:
+#
+#   export INFLUX_HOST=portal-telemetry.quantum.lrz.de
+#   export INFLUX_PORT=8086
+#   export INFLUX_DATABASE=warmlab
+#   export INFLUX_USERNAME=your_username
+#   export INFLUX_PASSWORD=your_password
+#
+INFLUX_HOST     = os.environ.get("INFLUX_HOST",     "portal-telemetry.quantum.lrz.de")
+INFLUX_PORT     = int(os.environ.get("INFLUX_PORT", "8086"))
+INFLUX_DATABASE = os.environ.get("INFLUX_DATABASE", "warmlab")
+INFLUX_USERNAME = os.environ.get("INFLUX_USERNAME")
+INFLUX_PASSWORD = os.environ.get("INFLUX_PASSWORD")
+
+if not INFLUX_USERNAME or not INFLUX_PASSWORD:
+    raise EnvironmentError(
+        "INFLUX_USERNAME and INFLUX_PASSWORD must be set as environment variables."
+    )
 
 # Data sources and corresponding divisors
 DATA_SOURCES = [
