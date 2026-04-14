@@ -9,8 +9,8 @@
 
 #include <dcdb_qdmi/device.h>
 #include <dcdb_qdmi/types.h>
-#include <sensors.h>
-#include <session.h>
+#include <dcdb_qdmi/sensors.h>
+#include <dcdb_qdmi/session.h>
 
 struct Config {
     int daemon_id;

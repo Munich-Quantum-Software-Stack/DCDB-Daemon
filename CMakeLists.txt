@@ -73,6 +73,8 @@ find_library(DCDB_LIBRARY NAMES dcdb dcdbclient dcdbcore
   HINTS ${ENV_DCDB_LIB} )
 find_library(DCDB_QDMI_LIBRARY NAMES dcdb_qdmi dcdb_qdmi_devices dcdb_device
   HINTS ${ENV_QDMI_DEV_LIB} )
+find_library(CASSANDRA_LIBRARY NAMES scylla-cpp-driver cassandra
+  HINTS $ENV{QDMI_DCDB_DEV_LIB_DIR} $ENV{CMAKE_PREFIX_PATH}/lib )
 
 message(STATUS "DCDB_LIBRARY      = ${DCDB_LIBRARY}")
 message(STATUS "DCDB_QDMI_LIBRARY = ${DCDB_QDMI_LIBRARY}")
@@ -108,6 +110,7 @@ target_include_directories(mqss_dcdb_daemon PRIVATE
 target_link_libraries(mqss_dcdb_daemon PRIVATE
   ${DCDB_LIBRARY}
   ${DCDB_QDMI_LIBRARY}
+  ${CASSANDRA_LIBRARY}
   Threads::Threads
   InfluxData::InfluxDB
   nlohmann_json_iface

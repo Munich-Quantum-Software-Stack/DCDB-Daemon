@@ -31,26 +31,86 @@ Architecture overview
 
 ## Requirements
 
-* Build tools: CMake >= 3.19, C++17 compiler (g++ or clang++)
+* Build tools: CMake >= 3.19, C++17 compiler (g++ or clang++), libcurl (dev headers)
 
-Libraries (installed or built from source):
-  - DCDB core libraries (`libdcdb.so` or `libdcdbclient.so`, headers).
-  - QDMI‑Devices DCDB Device Lib (`libdcdb_device.so`).
+Libraries — split into two groups:
 
-Runtime: access to a DCDB deployment and an InfluxDB instance. Set these environment variables (or pass -D cache variables to CMake) so CMake can locate, e.g.,
+**Managed in `extern/`** (cloned and built by the scripts described below):
+  - [cpr](https://github.com/libcpr/cpr) v1.14.2 — C++ HTTP client
+  - [influxdb-cxx](https://github.com/offa/influxdb-cxx) v0.8.1 — InfluxDB C++ client
+  - [cpp-driver](https://github.com/datastax/cpp-driver) v2.17.1 — DataStax C/C++ Cassandra driver (`cassandra.h`); required by QDMI-Devices' DCDB backend (not available in Debian bookworm standard repos)
+  - [QDMI-Devices](https://github.com/Munich-Quantum-Software-Stack/MQSS-QDMI-Devices-Suite) DCDB backend — provides `libdcdb_device.so`; DCDB itself is fetched and built automatically via cmake FetchContent when using `--with-dcdb`
 
-```Bash
-export DCDB_LIB_DIR=/path/to/DCDB/install/lib
-export DCDB_INC_DIR=/path/to/DCDB/install/include
-export DCDB_COMMON_DIR=/path/to/DCDB/dcdb/common
-export QDMI_DCDB_DEV_LIB_DIR=/path/to/QDMI-Devices/build/src/databases/dcdb
-export QDMI_DCDB_DEV_INC_DIR=/path/to/QDMI-Devices/build/src/databases/dcdb/include
-export QDMI_INC_DIR=/path/to/QDMI-Devices/build/_deps/qdmi-src/include
+**System prerequisites:**
+  - `libuv1-dev`, `libssl-dev`, `libcurl` (dev headers) — available via `apt`
+
+Runtime: a running DCDB deployment and an InfluxDB instance.
+
+## Dependencies (`extern/`)
+
+Two helper scripts in `extern/` automate cloning and building the managed dependencies.
+
+**Step 0 — install system prerequisites (Debian/Ubuntu):**
+
+```bash
+sudo apt install -y libuv1-dev libssl-dev libcurl4-openssl-dev
+```
+
+**Step 1 — clone sources:**
+
+```bash
+# Core deps only (cpr + influxdb-cxx):
+bash extern/clone.sh
+
+# Also include QDMI-Devices and the Cassandra C++ driver:
+bash extern/clone.sh --with-qdmi-devices
+```
+
+**Step 2 — build and install into `extern/installed/`:**
+
+```bash
+# Core deps only:
+bash extern/build.sh
+
+# With QDMI-Devices, letting cmake fetch and build DCDB automatically:
+bash extern/build.sh --with-qdmi-devices --with-dcdb
+
+# With QDMI-Devices, pointing to a pre-installed DCDB:
+bash extern/build.sh --with-qdmi-devices --dcdb-root /path/to/DCDB
+```
+
+Use `bash extern/build.sh --help` for all options (e.g. `--jobs N`, `--force`).
+
+After a successful build the layout is:
+
+```
+extern/
+  installed/           ← cpr, influxdb-cxx, cassandra driver (cmake --install)
+  QDMI-Devices/build/
+    src/databases/dcdb/          ← libdcdb_device.so + headers (not installed)
+    _deps/qdmi-src/include/      ← QDMI core headers (FetchContent)
+    _deps/dcdb-src/lib/include/  ← DCDB headers (FetchContent)
+    _deps/dcdb-build/lib/        ← libdcdb.so (FetchContent)
+```
+
+**Step 3 — export environment variables:**
+
+All paths are computed automatically relative to the repo root:
+
+```bash
+source build/export_qdmi_dcdb_deps.sh
 ```
 
 ## Building
 
-Basic build can be: `cmake -S . -B build`, then `cmake --build build -j`. The daemon binary will appear at `build/mqss_dcdb_daemon`.
+With the environment variables above set, configure and build:
+
+```bash
+cmake -S . -B build
+cmake --build build -j
+```
+
+The daemon binary will appear at `build/mqss_dcdb_daemon`.
 
 ## License
 

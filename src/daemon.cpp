@@ -90,8 +90,13 @@ DCDBSensorQueryResult mqss_dcdb_query_sensor_data(DCDB_QDMI_Device_Session sessi
     // submit the query
     DCDB_QDMI_device_telemetrysensor_query_submit(query);
 
-    // wait for the query
-    DCDB_QDMI_device_telemetrysensor_query_wait(query, 0);
+    // wait for the query (8s timeout — less than the parent's 10s kill window)
+    int wait_ret = DCDB_QDMI_device_telemetrysensor_query_wait(query, 8);
+    if (wait_ret == QDMI_ERROR_TIMEOUT) {
+        throw std::runtime_error("query_wait timed out after 8s");
+    } else if (wait_ret != QDMI_SUCCESS) {
+        throw std::runtime_error("query_wait failed with code " + std::to_string(wait_ret));
+    }
 
     // check the query status
     DCDB_QDMI_device_telemetrysensor_query_check_status(query, &status);

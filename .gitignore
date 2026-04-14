@@ -30,9 +30,14 @@ config.json
 examples/**/influxdb_credentials
 examples/**/build/
 
-# Third-party dependencies
-extern/
+# Third-party dependencies — keep only the helper scripts
+extern/*
+!extern/clone.sh
+!extern/build.sh
 
 # Build artifacts — shell scripts are kept via the exception below
 build/*
 !build/*.sh
+
+# Logs and temporary files
+logs/

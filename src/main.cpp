@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     // std::signal(SIGSEGV, crash_handler);  // segfault
     // std::signal(SIGABRT, crash_handler);  // abort (heap corruption)
 
-    // --- Step 1: Parse and validate arguments first ---
+    // --- Step 1a: Parse and validate arguments first ---
     Arguments args = parse_args(argc, argv);
 
     // --- Step 1b: Load JSON config ---
@@ -167,22 +167,44 @@ int main(int argc, char **argv)
                     std::signal(SIGINT,  SIG_IGN);
                     std::signal(SIGTERM, SIG_IGN);
 
-                    // Owns its own InfluxDB connection so the parent's socket is untouched.
-                    // Uses _exit() to skip C++ destructors on shared resources.
+                    // Create a fresh QDMI session — the parent's session is not
+                    // fork-safe (internal threads/state are not replicated into the
+                    // child), so query_wait would block forever on the parent's session.
                     try {
+                        DCDB_QDMI_Device_Session child_session;
+                        DCDB_QDMI_device_initialize();
+                        DCDB_QDMI_device_session_alloc(&child_session);
+                        DCDB_QDMI_device_session_set_parameter(child_session,
+                            QDMI_DEVICE_SESSION_PARAMETER_BASEURL,
+                            cfg.dcdb_host_server.size(),
+                            cfg.dcdb_host_server.c_str());
+                        DCDB_QDMI_device_session_init(child_session);
+
+                        // Re-enumerate sensors on the fresh session
+                        size_t child_size = 0;
+                        DCDB_QDMI_device_session_query_device_property(child_session,
+                            QDMI_DEVICE_PROPERTY_TELEMETRYSENSORS, 0, nullptr, &child_size);
+                        std::vector<DCDB_QDMI_TelemetrySensor> child_envs(
+                            child_size / sizeof(DCDB_QDMI_TelemetrySensor));
+                        DCDB_QDMI_device_session_query_device_property(child_session,
+                            QDMI_DEVICE_PROPERTY_TELEMETRYSENSORS, child_size,
+                            static_cast<void*>(child_envs.data()), nullptr);
+
                         DCDB_QDMI_Device_TelemetrySensor_Query child_query;
                         auto child_db = influxdb::InfluxDBFactory::Get(app_cfg.influx_url);
 
-                        DCDB_QDMI_device_session_create_device_telemetrysensor_query(session, &child_query);
-                        DCDB_QDMI_TelemetrySensor sensor_dev = envs.at(src.sensor_id);
-                        std::string sensor_name = check_sensor_device_id(session, sensor_dev);
+                        DCDB_QDMI_device_session_create_device_telemetrysensor_query(child_session, &child_query);
+                        DCDB_QDMI_TelemetrySensor sensor_dev = child_envs.at(src.sensor_id);
+                        std::string sensor_name = check_sensor_device_id(child_session, sensor_dev);
 
                         DCDBSensorQueryResult query_results = mqss_dcdb_query_sensor_data(
-                            session, child_query, sensor_dev, sta_ts, end_ts);
+                            child_session, child_query, sensor_dev, sta_ts, end_ts);
 
                         write_to_influxdb(*child_db, query_results, sensor_name, src);
 
                         DCDB_QDMI_device_telemetrysensor_query_free(child_query);
+                        DCDB_QDMI_device_session_free(child_session);
+                        DCDB_QDMI_device_finalize();
                     } catch (const std::exception& e) {
                         std::cerr << "Sensor " << src.sensor_id
                                   << " exception: " << e.what() << '\n';
