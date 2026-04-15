@@ -177,7 +177,7 @@ inline void write_to_influxdb(
                       << ", Field=" << src.field_name
                       << ", Value=" << scaled_value
                       << ", Timestamp=" << result.timestamps[i] << " ns"
-                      << ", Timepoint=" << tp.time_since_epoch().count() 
+                    //   << ", Timepoint=" << tp.time_since_epoch().count() 
                       << ", Datetime=" << datetime_str
                       << "\n";
 
