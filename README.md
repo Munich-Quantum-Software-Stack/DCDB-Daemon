@@ -31,7 +31,7 @@ Architecture overview
 
 ## Requirements
 
-* Build tools: CMake >= 3.19, C++17 compiler (g++ or clang++), libcurl (dev headers)
+* Build tools: CMake >= 3.19, C++17 compiler (g++ or clang++), libcurl (dev headers), libuv
 
 Libraries — split into two groups:
 

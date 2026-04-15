@@ -30,10 +30,16 @@ export DCDB_LIB_DIR="$DCDB_DEPS/dcdb-src/lib"
 export DCDB_COMMON_DIR="$DCDB_DEPS/dcdb-src/common"
 export DCDB_SOURCE_LOCATION="$DCDB_DEPS/dcdb-src"
 
-export CPATH="$DCDB_INC_DIR:$DCDB_COMMON_DIR/include:$QDMI_DCDB_DEV_INC_DIR:$QDMI_INC_DIR:$INSTALL_DIR/include${CPATH:+:$CPATH}"
-export INCLUDE="$DCDB_INC_DIR:$DCDB_COMMON_DIR/include:$QDMI_DCDB_DEV_INC_DIR:$QDMI_INC_DIR:$INSTALL_DIR/include${INCLUDE:+:$INCLUDE}"
-export LD_LIBRARY_PATH="$DCDB_LIB_DIR:$QDMI_DCDB_DEV_LIB_DIR:$INSTALL_DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-export LIBRARY_PATH="$DCDB_LIB_DIR:$QDMI_DCDB_DEV_LIB_DIR:$INSTALL_DIR/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+# Boost — fetched and built by DCDB's own ExternalProject inside the QDMI-Devices
+# FetchContent tree. DCDB's common/include/logging.h includes boost/log headers,
+# so the compiler must be able to find them when building DCDB-Daemon.
+BOOST_INC_DIR="$DCDB_DEPS/deps/boost_1_83_0"
+BOOST_LIB_DIR="$DCDB_DEPS/install/lib"
+
+export CPATH="$DCDB_INC_DIR:$DCDB_COMMON_DIR/include:$QDMI_DCDB_DEV_INC_DIR:$QDMI_INC_DIR:$BOOST_INC_DIR:$INSTALL_DIR/include${CPATH:+:$CPATH}"
+export INCLUDE="$DCDB_INC_DIR:$DCDB_COMMON_DIR/include:$QDMI_DCDB_DEV_INC_DIR:$QDMI_INC_DIR:$BOOST_INC_DIR:$INSTALL_DIR/include${INCLUDE:+:$INCLUDE}"
+export LD_LIBRARY_PATH="$DCDB_LIB_DIR:$QDMI_DCDB_DEV_LIB_DIR:$BOOST_LIB_DIR:$INSTALL_DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export LIBRARY_PATH="$DCDB_LIB_DIR:$QDMI_DCDB_DEV_LIB_DIR:$BOOST_LIB_DIR:$INSTALL_DIR/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
 
 echo "---------------------------------------------------"
 echo "Exported DCDB, QDMI, QDMI_DCDB Device env vars."
@@ -47,4 +53,7 @@ echo ""
 echo "  QDMI_INC_DIR          = $QDMI_INC_DIR"
 echo "  QDMI_DCDB_DEV_INC_DIR = $QDMI_DCDB_DEV_INC_DIR"
 echo "  QDMI_DCDB_DEV_LIB_DIR = $QDMI_DCDB_DEV_LIB_DIR"
+echo ""
+echo "  BOOST_INC_DIR         = $BOOST_INC_DIR"
+echo "  BOOST_LIB_DIR         = $BOOST_LIB_DIR"
 echo "---------------------------------------------------"

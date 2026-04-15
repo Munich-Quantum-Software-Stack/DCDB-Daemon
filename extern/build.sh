@@ -102,7 +102,8 @@ build_cmake "cpr" "$EXTERN_DIR/cpr" "lib/libcpr.so" \
     -DCPR_USE_SYSTEM_CURL=ON \
     -DCPR_BUILD_TESTS=OFF \
     -DCPR_ENABLE_SSL=ON \
-    -DCPR_FORCE_OPENSSL_BACKEND=ON
+    -DCPR_FORCE_OPENSSL_BACKEND=ON \
+    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
 
 # ------------------------------------------------------------------------------
 # 2. influxdb-cxx  — C++ InfluxDB client (depends on cpr)
