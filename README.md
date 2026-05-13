@@ -112,6 +112,17 @@ cmake --build build -j
 
 The daemon binary will appear at `build/mqss_dcdb_daemon`.
 
+## Running
+
+In the `build/` directory, there is a bash script showing a command example how to run the daemon. For instance,
+
+```bash
+./mqss_dcdb_daemon --config ../config.json --log-file daemon_log.txt --dcdb-url localhost:9042
+```
+
+where, `--config ../config.json` points to the config file containing a list of sensors, the database server, etc;
+`--log-file daemon_log.txt` points to where we output the logs; `--dcdb-url localhost:9042` points to the server that we can collect/query sensor data.
+
 ## License
 
 This project is released under the Apache License v2.0 with LLVM Exceptions. See [LICENSE](https://github.com/Munich-Quantum-Software-Stack/MQSS-CUDAQ-Adapter/blob/develop/LICENSE) for more information. Any contribution to the project is assumed to be under the same license.

@@ -61,18 +61,23 @@ static void write_state_file(const std::string& path, uint64_t end_ts) {
 // Global flag — set to false when Ctrl+C is pressed
 static std::atomic<bool> running{true};
 
+// Returns current wall-clock time as "HH:MM:SS" for log prefixes
+static std::string ts() {
+    std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    char buf[9];
+    struct tm tm_buf;
+    std::strftime(buf, sizeof(buf), "%H:%M:%S", localtime_r(&t, &tm_buf));
+    return buf;
+}
+
 // Signal handler — called on Ctrl+C (SIGINT) or kill (SIGTERM)
 static void signal_handler(int signal) {
-    std::cout << "\nReceived signal " << signal << ", stopping...\n";
+    std::cout << '\n' << ts() << " signal " << signal << " — stopping\n";
     running = false;
 }
 
-// Add alongside your SIGINT handler at the top of main.cpp
-// We can't safely continue after SIGSEGV, but we can at least log it
-// The safest option is to just exit cleanly
 static void crash_handler(int signal) {
-    std::cerr << "\nCaught signal " << signal << " (SIGSEGV/SIGABRT), "
-              << "attempting to continue...\n";
+    std::cerr << "\nCRASH signal " << signal << " — stopping\n";
     running = false;
 }
 
@@ -96,7 +101,7 @@ int main(int argc, char **argv)
     if (!args.log_file.empty()) {
         log_stream.open(args.log_file, std::ios::app);
         if (!log_stream.is_open()) {
-            std::cerr << "Warning: could not open log file: " << args.log_file << '\n';
+            std::cerr << ts() << " WARN could not open log file: " << args.log_file << '\n';
         } else {
             orig_cout = std::cout.rdbuf();
             orig_cerr = std::cerr.rdbuf();
@@ -107,28 +112,27 @@ int main(int argc, char **argv)
         }
     }
 
-    std::cout << "Daemon starting. Press Ctrl+C to stop.\n";
+    std::cout << ts() << " starting (Ctrl+C to stop)\n";
     if (!args.log_file.empty())
-        std::cout << "Logging to: " << args.log_file << '\n';
+        std::cout << ts() << " log → " << args.log_file << '\n';
 
     // Step 1c: Load JSON config
     AppConfig app_cfg;
     try {
         app_cfg = load_config(args.config_path);
     } catch (const std::exception& e) {
-        std::cerr << "Fatal: " << e.what() << '\n';
+        std::cerr << ts() << " FATAL " << e.what() << '\n';
         return 1;
     }
-    std::cout << "Loaded config from: " << args.config_path << '\n'
-              << "Active sensors: " << app_cfg.data_sources.size() << '\n';
+    std::cout << ts() << " config " << args.config_path << " (" << app_cfg.data_sources.size() << " sensors)\n";
 
     // Step 2: Connect to InfluxDB
     auto db = influxdb::InfluxDBFactory::Get(app_cfg.influx_url);
     if (!db) {
-        std::cerr << "Fatal: could not connect to InfluxDB\n";
+        std::cerr << ts() << " FATAL could not connect to InfluxDB\n";
         return 1;
     }
-    std::cout << "Connected to InfluxDB: " << app_cfg.influx_url << '\n';
+    std::cout << ts() << " InfluxDB " << app_cfg.influx_url << '\n';
 
     // Step 3: Initialize DCDB Config
     Config cfg;
@@ -156,7 +160,7 @@ int main(int argc, char **argv)
         DCDB_QDMI_device_initialize();
         DCDB_QDMI_device_session_alloc(&session);
         if (session == nullptr) {
-            std::cerr << "Fatal: Error when allocating QDMI Device session for DCDB" << std::endl;
+            std::cerr << ts() << " FATAL QDMI session alloc failed\n";
             return 1;
         }
         DCDB_QDMI_device_session_set_parameter(session, QDMI_DEVICE_SESSION_PARAMETER_BASEURL,
@@ -169,11 +173,7 @@ int main(int argc, char **argv)
         DCDB_QDMI_device_session_query_device_property(session, QDMI_DEVICE_PROPERTY_TELEMETRYSENSORS, 
                                                         size, static_cast<void *>(envs.data()), nullptr);
 
-        std::cout << "------------------------------------------\n"
-                  << "QDMI-DCDB Daemon initialized. Daemon ID: " << cfg.daemon_id
-                  << " | Host Server: " << cfg.dcdb_host_server << '\n'
-                  << "Daemon running. Press Ctrl+C to stop.\n"
-                  << "------------------------------------------\n";
+        std::cout << ts() << " DCDB ready (ID=" << cfg.daemon_id << ", host=" << cfg.dcdb_host_server << ")\n";
 
         // Step 4a: Read last state (only when --resume is passed)
         uint64_t last_end_ts = 0;
@@ -183,11 +183,9 @@ int main(int argc, char **argv)
                 std::time_t t_last = static_cast<std::time_t>(last_end_ts);
                 std::string str_last = std::ctime(&t_last);
                 if (!str_last.empty() && str_last.back() == '\n') str_last.pop_back();
-                std::cout << "Resuming from state file (" << args.state_file
-                          << "): last end_ts = " << str_last << '\n';
+                std::cout << ts() << " resume " << args.state_file << ": last_end=" << str_last << '\n';
             } else {
-                std::cout << "--resume set but no state file found (" << args.state_file
-                          << "); starting from [now - " << args.minutes_ago.value_or(5) << "min]\n";
+                std::cout << ts() << " resume: no state file — starting from now-" << args.minutes_ago.value_or(5) << "min\n";
             }
         }
 
@@ -219,11 +217,7 @@ int main(int argc, char **argv)
             if (!str_start.empty() && str_start.back() == '\n') str_start.pop_back();
             if (!str_end.empty()   && str_end.back()   == '\n') str_end.pop_back();
 
-            std::cout << "------------------------------------------\n"
-                      << "Query Time Window:\n"
-                      << " + Start: " << str_start << '\n'
-                      << " + End:   " << str_end   << '\n'
-                      << "------------------------------------------\n";
+            std::cout << ts() << " window [" << str_start << " → " << str_end << "]\n";
 
             // --- Query and write ---
             // Each sensor runs in a child process so that a library crash
@@ -232,16 +226,13 @@ int main(int argc, char **argv)
 
                 if (!running) break;
 
-                std::cout << "\nSensor ID: "   << src.sensor_id
-                          << "\nDivisor:     " << src.divisor
-                          << "\nMeasurement: " << src.measurement
-                          << "\nField:       " << src.field_name << '\n';
-                std::cout << "------------------------------------------" << std::endl;
+                std::cout << ts() << " sensor[" << src.sensor_id << "] "
+                          << src.measurement << '/' << src.field_name
+                          << " (÷" << src.divisor << ")\n";
 
                 pid_t child_pid = fork();
                 if (child_pid < 0) {
-                    std::cerr << "fork() failed for sensor " << src.sensor_id
-                              << ": " << std::strerror(errno) << " — skipping\n";
+                    std::cerr << ts() << " WARN sensor[" << src.sensor_id << "] fork failed: " << std::strerror(errno) << "\n";
                     continue;
                 }
 
@@ -314,8 +305,7 @@ int main(int argc, char **argv)
                         DCDB_QDMI_device_session_free(child_session);
                         DCDB_QDMI_device_finalize();
                     } catch (const std::exception& e) {
-                        std::cerr << "Sensor " << src.sensor_id
-                                  << " exception: " << e.what() << '\n';
+                        std::cerr << ts() << " sensor[" << src.sensor_id << "] exception: " << e.what() << '\n';
                         std::cout.flush(); std::cerr.flush();
                         _exit(1);
                     }
@@ -338,24 +328,18 @@ int main(int argc, char **argv)
                 if (timed_out || !running) {
                     kill(child_pid, SIGKILL);
                     waitpid(child_pid, &status, 0);
-                    std::cerr << "Sensor " << src.sensor_id
-                              << " (" << src.field_name << ") timed out after "
-                              << timeout_seconds << "s — killed\n";
+                    std::cerr << ts() << " WARN sensor[" << src.sensor_id << "] timed out (" << timeout_seconds << "s) — killed\n";
                 } else if (WIFSIGNALED(status)) {
-                    std::cerr << "Sensor " << src.sensor_id
-                              << " (" << src.field_name << ")"
-                              << " crashed (signal " << WTERMSIG(status) << ") — skipping\n";
+                    std::cerr << ts() << " WARN sensor[" << src.sensor_id << "] crashed (sig " << WTERMSIG(status) << ") — skipping\n";
                 } else if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-                    std::cerr << "Sensor " << src.sensor_id
-                              << " (" << src.field_name << ") failed — skipping\n";
+                    std::cerr << ts() << " WARN sensor[" << src.sensor_id << "] failed — skipping\n";
                 }
             }
 
             // --- Persist state so a restart can resume from here ---
             if (!args.state_file.empty()) {
                 write_state_file(args.state_file, end_ts);
-                std::cout << "State saved: end_ts = " << end_ts
-                          << " (" << args.state_file << ")\n";
+                std::cout << ts() << " state saved: " << end_ts << " → " << args.state_file << '\n';
             }
 
             // --- Sleep for duration_minutes, but wake up early if stopped ---
@@ -366,7 +350,7 @@ int main(int argc, char **argv)
         }
 
         // Tear down the session and clean up
-        std::cout << "Cleaning up QDMI session and resources..." << std::endl;
+        std::cout << ts() << " shutting down\n";
         DCDB_QDMI_device_session_free(session);
         DCDB_QDMI_device_finalize();
 
@@ -377,7 +361,7 @@ int main(int argc, char **argv)
         return 0;
     }
     catch (const std::exception &ex){
-        std::cerr << "Fatal: " << ex.what() << std::endl;
+        std::cerr << ts() << " FATAL " << ex.what() << '\n';
         // Restore original streambufs on error path too
         if (orig_cout) std::cout.rdbuf(orig_cout);
         if (orig_cerr) std::cerr.rdbuf(orig_cerr);
