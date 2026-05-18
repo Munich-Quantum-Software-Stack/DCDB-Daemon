@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ------------------------------------------------------------
+  # Build and run the standalone timestamp-format test.
+  # Pure C++17 stdlib — no external dependencies needed.
+  # ------------------------------------------------------------
+  build-test:
+    name: Build & Run Standalone Test
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build test_timestamp_format
+        working-directory: test
+        run: make clean && make
+
+      - name: Run test_timestamp_format
+        working-directory: test
+        run: make run
+
+  # ------------------------------------------------------------
+  # CMake configure check with core deps (cpr + influxdb-cxx).
+  # DCDB and QDMI-Devices are not available in CI so the actual
+  # link step is skipped — configure verifies CMakeLists.txt is
+  # well-formed and that core deps resolve correctly.
+  # ------------------------------------------------------------
+  cmake-configure:
+    name: CMake Configure Check
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system prerequisites
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y \
+            cmake \
+            libuv1-dev \
+            libssl-dev \
+            libcurl4-openssl-dev
+
+      - name: Clone core dependencies
+        run: bash extern/clone.sh
+
+      - name: Build core dependencies
+        run: bash extern/build.sh --jobs $(nproc)
+
+      - name: CMake configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_PREFIX_PATH="$PWD/extern/installed"
+
+  # ------------------------------------------------------------
+  # Static analysis with cppcheck.
+  # Checks src/ and test/ for common C++ issues at warning level
+  # without requiring a full build.
+  # ------------------------------------------------------------
+  lint-cpp:
+    name: Lint C++ (cppcheck)
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cppcheck
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y cppcheck
+
+      - name: Run cppcheck
+        run: |
+          cppcheck \
+            --enable=warning,performance \
+            --error-exitcode=1 \
+            --suppress=missingIncludeSystem \
+            --std=c++17 \
+            src/ test/
