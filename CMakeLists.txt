@@ -98,19 +98,20 @@ target_include_directories(nlohmann_json_iface INTERFACE
 # Maybe thread lib on Linux
 find_package(Threads REQUIRED)
 
-# Apply the include directories
-target_include_directories(mqss_dcdb_daemon PRIVATE
-  ${DCDB_INCLUDE_DIR}
-  ${DCDB_COMMON_INCLUDE_DIR}
-  ${QDMI_INCLUDE_DIR}
-  ${DCDB_QDMI_INCLUDE_DIR}
-)
+# Apply the include directories (guard optional DCDB/QDMI deps against NOTFOUND)
+foreach(_dir DCDB_INCLUDE_DIR DCDB_COMMON_INCLUDE_DIR QDMI_INCLUDE_DIR DCDB_QDMI_INCLUDE_DIR)
+  if(${_dir})
+    target_include_directories(mqss_dcdb_daemon PRIVATE "${${_dir}}")
+  endif()
+endforeach()
 
-# Apply linking the dependencies
+# Apply linking the dependencies (guard optional DCDB/QDMI deps against NOTFOUND)
+foreach(_lib DCDB_LIBRARY DCDB_QDMI_LIBRARY CASSANDRA_LIBRARY)
+  if(${_lib})
+    target_link_libraries(mqss_dcdb_daemon PRIVATE "${${_lib}}")
+  endif()
+endforeach()
 target_link_libraries(mqss_dcdb_daemon PRIVATE
-  ${DCDB_LIBRARY}
-  ${DCDB_QDMI_LIBRARY}
-  ${CASSANDRA_LIBRARY}
   Threads::Threads
   InfluxData::InfluxDB
   nlohmann_json_iface
