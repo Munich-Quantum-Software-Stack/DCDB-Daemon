@@ -26,7 +26,6 @@ struct DataSource {
 };
 
 
-
 /* Several sensors cause memory corruption when queried, 
 * likely due to a bug in the DCDB-QDMI library.
 * The full list of sensors is defined in the commented-out DATA_SOURCES vector below.

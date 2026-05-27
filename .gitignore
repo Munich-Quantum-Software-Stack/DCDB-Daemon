@@ -41,3 +41,9 @@ build/*
 
 # Logs and temporary files
 logs/
+
+# Tests
+test/
+!test/Makefile
+!test/test_*.cpp
+
