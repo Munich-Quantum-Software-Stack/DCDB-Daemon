@@ -95,6 +95,8 @@ target_include_directories(nlohmann_json_iface INTERFACE
   ${nlohmann_json_SOURCE_DIR}/include
 )
 
+add_subdirectory(docs)
+
 # Maybe thread lib on Linux
 find_package(Threads REQUIRED)
 
