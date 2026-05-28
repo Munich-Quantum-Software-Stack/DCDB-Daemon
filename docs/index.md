@@ -7,8 +7,9 @@
 ## Overview
 
 The **MQSS QDMI-based DCDB Daemon** is a lightweight C++ daemon that continuously queries
-telemetry sensor data through the [QDMI-DCDB](https://github.com/Munich-Quantum-Software-Stack/MQSS-QDMI-Devices-Suite)
-device library and writes the results into an [InfluxDB](https://www.influxdata.com/) time-series
+telemetry sensor data through the
+[QDMI-DCDB](https://github.com/Munich-Quantum-Software-Stack/MQSS-QDMI-Devices-Suite) device
+library and writes the results into an [InfluxDB](https://www.influxdata.com/) time-series
 database for long-term storage and visualization.
 
 [DCDB](https://gitlab.lrz.de/dcdb/dcdb) (Data Center Data Base) is a modular, continuous, and
@@ -41,9 +42,9 @@ DCDB sensor nodes and downstream analytics tools such as Grafana.
  Visualization / Analytics (Grafana, Chronograf, ...)
 ```
 
-- **DCDB** exposes sensor data (power, temperature, environmental metrics, …).
+- **DCDB** exposes sensor data (power, temperature, environmental metrics, ...).
 - **QDMI-DCDB Device** is the adapter library that queries those sensors.
-- **MQSS Daemon** polls the adapter and pushes results to InfluxDB.
+- **MQSS Daemon** polls the adapter on a rolling time window and pushes results to InfluxDB.
 
 ## How to Use This Documentation
 

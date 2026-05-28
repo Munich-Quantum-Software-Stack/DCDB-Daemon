@@ -1,128 +1,170 @@
-## MQSS QDMI-based DCDB Daemon
+<!----------------------------------------------------------------------------
+Copyright 2024 Munich Quantum Software Stack Project
 
-A lightweight C++ daemon that continuously queries telemetry sensor data through the QDMI‑DCDB device library, in which [DCDB](https://gitlab.lrz.de/dcdb/dcdb) refers to Data Center Data Base, a modular, continuous, and holistic monitoring framework targeted at HPC environments. The daemon writes relevant sensor data into an InfluxDB time-series database and exposes data for use in dashboards or other downstream analytics.
+Licensed under the Apache License, Version 2.0 with LLVM Exceptions (the
+"License"); you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-The daemon hase following features:
-* Continuous querying data of DCDB telemetry sensors.
-* Connection management using the QDMI‑DCDB library.
-* Writes queried values into InfluxDB for long‑term storage and visualization (Grafana, Chronograf, etc.).
-* Flexible deployment as standalone daemon.
+https://github.com/Munich-Quantum-Software-Stack/DCDB-Daemon/blob/develop/LICENSE
 
-Architecture overview
-```Bash
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+--------------------------------------------------------------------------->
+
+<p align="center">
+  <img src="docs/logos/mqss_logo.svg" width="20%">
+</p>
+
+# MQSS QDMI-based DCDB Daemon
+
+<p align="center">
+  <a href="https://munich-quantum-software-stack.github.io/DCDB-Daemon/">
+    <img style="min-width: 200px !important; width: 30%;" src="https://img.shields.io/badge/documentation-blue?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNi4wIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjQgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTk2IDBDNDMgMCAwIDQzIDAgOTZMMCA0MTZjMCA1MyA0MyA5NiA5NiA5NmwyODggMCAzMiAwYzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMybDAtNjRjMTcuNyAwIDMyLTE0LjMgMzItMzJsMC0zMjBjMC0xNy43LTE0LjMtMzItMzItMzJMMzg0IDAgOTYgMHptMCAzODRsMjU2IDAgMCA2NEw5NiA0NDhjLTE3LjcgMC0zMi0xNC4zLTMyLTMyczE0LjMtMzIgMzItMzJ6bTMyLTI0MGMwLTguOCA3LjItMTYgMTYtMTZsMTkyIDBjOC44IDAgMTYgNy4yIDE2IDE2cy03LjIgMTYtMTYgMTZsLTE5MiAwYy04LjggMC0xNi03LjItMTYtMTZ6bTE2IDQ4bDE5MiAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xOTIgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnoiLz48L3N2Zz4=" alt="Documentation" />
+  </a>
+  &nbsp;
+  <a href="https://github.com/Munich-Quantum-Software-Stack/DCDB-Daemon/actions/workflows/ci.yml">
+    <img src="https://github.com/Munich-Quantum-Software-Stack/DCDB-Daemon/actions/workflows/ci.yml/badge.svg" alt="CI" />
+  </a>
+</p>
+
+A lightweight C++ daemon that continuously queries telemetry sensor data through the
+[QDMI-DCDB](https://github.com/Munich-Quantum-Software-Stack/MQSS-QDMI-Devices-Suite) device
+library and writes the results into an [InfluxDB](https://www.influxdata.com/) time-series database
+for long-term storage and visualization (Grafana, etc.).
+
+[DCDB](https://gitlab.lrz.de/dcdb/dcdb) (Data Center Data Base) is a modular, continuous, and
+holistic monitoring framework targeted at HPC environments.
+
+## FAQ
+
+### What is MQSS?
+
+_MQSS_ stands for _Munich Quantum Software Stack_ and is a project of the _Munich Quantum Valley_
+initiative. It is jointly developed by the _Munich Quantum Valley (MQV) gGmbH_, _Leibniz
+Supercomputing Centre (LRZ)_, the _Chair for Design Automation (CDA)_, and the _Chair of Computer
+Architecture and Parallel Systems (CAPS)_ at TUM. It provides a comprehensive compilation and
+runtime infrastructure for on-premise and remote quantum devices, support for modern compilation and
+optimization techniques, and enables both current and future high-level abstractions for quantum
+programming. This stack is designed to be capable of deployment in a variety of scenarios via
+flexible configuration options. This includes stand-alone scenarios for individual systems, cloud
+access to a variety of devices, as well as tight integration into HPC environments supporting
+quantum acceleration. Concrete instances of the _MQSS_ are deployed at the LRZ and MQV gGmbH,
+providing unified access to all of their quantum devices through multiple compatible access paths.
+This includes a web portal, command line access via web credentials, as well as the option for
+hybrid access with tight integration with HPC systems. It facilitates the connection between
+end-users and quantum computing platforms by its integration within HPC infrastructures, such as
+those found at the LRZ.
+
+### Where is the code?
+
+The code is publicly available and hosted on GitHub at
+[github.com/Munich-Quantum-Software-Stack/DCDB-Daemon](https://github.com/Munich-Quantum-Software-Stack/DCDB-Daemon).
+
+### Under which license is the MQSS QDMI-based DCDB Daemon released?
+
+The **MQSS QDMI-based DCDB Daemon** is released under the Apache License v2.0 with LLVM
+Exceptions. See [LICENSE](LICENSE) for more information. Any contribution to the project is assumed
+to be under the same license.
+
+## Architecture
+
+```
 +-------------------+       +--------------------------------+
-| DCDB Sensor Nodes | <---> | QDMI‑based DCDB Device Library |
+| DCDB Sensor Nodes | <---> | QDMI-based DCDB Device Library |
 +-------------------+       +--------------------------------+
                                            ^
                                            |
                                            v
  +-----------------+          +-----------------------------+
- |    InfluxDB     |  <--->   | MQSS QDMI-based DCDC Daemon |
+ |    InfluxDB     |  <--->   | MQSS QDMI-based DCDB Daemon |
  +-----------------+          +-----------------------------+
           ^
           |
           v
- Visualization / Analytics (Grafana, Custom Tools, ...)
+ Visualization / Analytics (Grafana, Chronograf, ...)
 ```
 
-* DCDB provides sensor data (power, temperature, environment metrics, ...)
-* QDMI‑DCDB Device as a device adapter to query those metrics.
-* MQSS Daemon polls the metrics and pushes them to InfluxDB.
+- **DCDB** exposes sensor data (power, temperature, environmental metrics, ...).
+- **QDMI-DCDB Device** is the adapter library that queries those sensors.
+- **MQSS Daemon** polls the adapter on a rolling time window and pushes results to InfluxDB.
 
 ## Requirements
 
-* Build tools: CMake >= 3.19, C++17 compiler (g++ or clang++), libcurl (dev headers), libuv
+- CMake ≥ 3.19, C++17 compiler (`g++` or `clang++`)
+- System libraries: `libuv1-dev`, `libssl-dev`, `libcurl4-openssl-dev`
+- Runtime: a running DCDB deployment and an InfluxDB instance
 
-Libraries — split into two groups:
+Managed dependencies (cpr, influxdb-cxx, cpp-driver, QDMI-Devices) are handled by the scripts in
+`extern/` — no system-wide installation required.
 
-**Managed in `extern/`** (cloned and built by the scripts described below):
-  - [cpr](https://github.com/libcpr/cpr) v1.14.2 — C++ HTTP client
-  - [influxdb-cxx](https://github.com/offa/influxdb-cxx) v0.8.1 — InfluxDB C++ client
-  - [cpp-driver](https://github.com/datastax/cpp-driver) v2.17.1 — DataStax C/C++ Cassandra driver (`cassandra.h`); required by QDMI-Devices' DCDB backend (not available in Debian bookworm standard repos)
-  - [QDMI-Devices](https://github.com/Munich-Quantum-Software-Stack/MQSS-QDMI-Devices-Suite) DCDB backend — provides `libdcdb_device.so`; DCDB itself is fetched and built automatically via cmake FetchContent when using `--with-dcdb`
+## Repository Structure
 
-**System prerequisites:**
-  - `libuv1-dev`, `libssl-dev`, `libcurl` (dev headers) — available via `apt`
+```
+.
+├── src/                  # Daemon source (C++17)
+├── docs/                 # Documentation (Doxygen + Markdown)
+│   └── logos/            # Project logos
+├── extern/               # Managed third-party dependencies
+│   ├── clone.sh          # Clone dependencies
+│   └── build.sh          # Build and install into extern/installed/
+├── examples/             # Usage examples (InfluxDB query, Python telemetry)
+├── utils/                # Utility scripts and helper tools
+└── test/                 # Standalone tests
+```
 
-Runtime: a running DCDB deployment and an InfluxDB instance.
+## Building
 
-## Dependencies (`extern/`)
-
-Two helper scripts in `extern/` automate cloning and building the managed dependencies.
-
-**Step 0 — install system prerequisites (Debian/Ubuntu):**
+**Step 1 — install system prerequisites:**
 
 ```bash
 sudo apt install -y libuv1-dev libssl-dev libcurl4-openssl-dev
 ```
 
-**Step 1 — clone sources:**
+**Step 2 — clone and build managed dependencies:**
 
 ```bash
-# Core deps only (cpr + influxdb-cxx):
-bash extern/clone.sh
-
-# Also include QDMI-Devices and the Cassandra C++ driver:
 bash extern/clone.sh --with-qdmi-devices
-```
-
-**Step 2 — build and install into `extern/installed/`:**
-
-```bash
-# Core deps only:
-bash extern/build.sh
-
-# With QDMI-Devices, letting cmake fetch and build DCDB automatically:
 bash extern/build.sh --with-qdmi-devices --with-dcdb
-
-# With QDMI-Devices, pointing to a pre-installed DCDB:
-bash extern/build.sh --with-qdmi-devices --dcdb-root /path/to/DCDB
 ```
 
-Use `bash extern/build.sh --help` for all options (e.g. `--jobs N`, `--force`).
-
-After a successful build the layout is:
-
-```
-extern/
-  installed/           ← cpr, influxdb-cxx, cassandra driver (cmake --install)
-  QDMI-Devices/build/
-    src/databases/dcdb/          ← libdcdb_device.so + headers (not installed)
-    _deps/qdmi-src/include/      ← QDMI core headers (FetchContent)
-    _deps/dcdb-src/lib/include/  ← DCDB headers (FetchContent)
-    _deps/dcdb-build/lib/        ← libdcdb.so (FetchContent)
-```
-
-**Step 3 — export environment variables:**
-
-All paths are computed automatically relative to the repo root:
+**Step 3 — export environment variables and build:**
 
 ```bash
 source build/export_qdmi_dcdb_deps.sh
-```
-
-## Building
-
-With the environment variables above set, configure and build:
-
-```bash
 cmake -S . -B build
 cmake --build build -j
 ```
 
-The daemon binary will appear at `build/mqss_dcdb_daemon`.
+The daemon binary is placed at `build/mqss_dcdb_daemon`.
+
+See [Getting Started](docs/getting_started.md) for the full step-by-step guide.
 
 ## Running
 
-In the `build/` directory, there is a bash script showing a command example how to run the daemon. For instance,
-
 ```bash
-./mqss_dcdb_daemon --config ../config.json --log-file daemon_log.txt --dcdb-url localhost:9042
+./mqss_dcdb_daemon --config config.json --dcdb-url localhost:9042
 ```
 
-where, `--config ../config.json` points to the config file containing a list of sensors, the database server, etc;
-`--log-file daemon_log.txt` points to where we output the logs; `--dcdb-url localhost:9042` points to the server that we can collect/query sensor data.
+See [Usage](docs/usage.md) for all CLI options and the config file format.
+
+## Contact
+
+Please use the publicly accessible GitHub channels —
+[issues](https://github.com/Munich-Quantum-Software-Stack/DCDB-Daemon/issues) and
+[pull requests](https://github.com/Munich-Quantum-Software-Stack/DCDB-Daemon/pulls) —
+to allow for a transparent and open discussion.
+
+## Contributing
+
+See [contributing.md](contributing.md) and [code_of_conduct.md](code_of_conduct.md).
 
 ## License
 
-This project is released under the Apache License v2.0 with LLVM Exceptions. See [LICENSE](https://github.com/Munich-Quantum-Software-Stack/MQSS-CUDAQ-Adapter/blob/develop/LICENSE) for more information. Any contribution to the project is assumed to be under the same license.
+This project is released under the Apache License v2.0 with LLVM Exceptions. See
+[LICENSE](LICENSE) for more information. Any contribution to the project is assumed to be under
+the same license.
